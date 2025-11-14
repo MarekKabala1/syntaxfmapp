@@ -1,5 +1,11 @@
+import BgWrapper from '@/components/BgWrapper';
 import React from 'react';
+import { Text } from 'react-native';
 
 export default function video() {
-	return <div>video</div>;
+	return (
+		<BgWrapper>
+			<Text>newsletter</Text>
+		</BgWrapper>
+	);
 }
