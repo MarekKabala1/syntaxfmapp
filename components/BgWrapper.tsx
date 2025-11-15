@@ -14,6 +14,7 @@ const styles = StyleSheet.create({
 	image: {
 		flex: 1,
 		backgroundColor: '#000',
+		paddingInline: 20,
 	},
 	bg: {
 		flex: 1,

@@ -5,7 +5,7 @@ import { Text } from 'react-native';
 export default function video() {
 	return (
 		<BgWrapper>
-			<Text>newsletter</Text>
+			<Text>video</Text>
 		</BgWrapper>
 	);
 }
