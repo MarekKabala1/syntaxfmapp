@@ -3,7 +3,7 @@ import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity, 
 import * as rssParser from 'react-native-rss-parser';
 
 import localPodcastData from '../assets/data/podcastFeed.json';
-interface PodcastEpisode {
+export interface PodcastEpisode {
 	id: string;
 	title: string;
 	description: string;
@@ -15,7 +15,11 @@ interface PodcastEpisode {
 	};
 }
 
-export default function PodcastFeed() {
+interface PodcastFeedProps {
+	onEpisodeSelect: (episode: PodcastEpisode) => void;
+}
+
+export default function PodcastFeed({ onEpisodeSelect }: PodcastFeedProps) {
 	const [episodes, setEpisodes] = useState<PodcastEpisode[]>([]);
 	const [loading, setLoading] = useState(true);
 	const [error, setError] = useState<string | null>(null);
@@ -52,8 +56,7 @@ export default function PodcastFeed() {
 	}, []);
 
 	const handleEpisodePress = (episode: PodcastEpisode) => {
-		console.log('Episode pressed:', episode.title);
-		console.log('Audio URL:', episode.enclosures[0]?.url);
+		onEpisodeSelect(episode);
 	};
 
 	const formatDuration = (duration: string): string => {
@@ -130,22 +133,15 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'center',
 		alignItems: 'center',
-		padding: 20,
 	},
 	listContent: {
 		paddingBottom: 20,
 	},
 	episode: {
-		backgroundColor: '#FABF47',
-		marginHorizontal: 16,
+		backgroundColor: 'rgba(250, 191, 71, 0.8)',
 		marginVertical: 8,
 		padding: 16,
 		borderRadius: 12,
-		shadowColor: '#b2a4a4ff',
-		shadowOffset: { width: 0, height: 2 },
-		shadowOpacity: 0.1,
-		shadowRadius: 4,
-		elevation: 3,
 	},
 	episodeHeader: {
 		flexDirection: 'row',
@@ -164,16 +160,15 @@ const styles = StyleSheet.create({
 	title: {
 		fontSize: 16,
 		fontWeight: 'bold',
-		color: '#333',
+		color: '#000',
 	},
 	duration: {
 		fontSize: 14,
-		color: '#666',
-		marginTop: 4,
+		color: '#000',
 	},
 	description: {
 		fontSize: 14,
-		color: '#555',
+		color: '#000',
 		lineHeight: 20,
 		marginBottom: 12,
 	},
@@ -184,7 +179,7 @@ const styles = StyleSheet.create({
 	},
 	date: {
 		fontSize: 12,
-		color: '#888',
+		color: '#000',
 	},
 	error: {
 		color: 'red',
