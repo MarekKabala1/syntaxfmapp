@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import * as rssParser from 'react-native-rss-parser';
 
+import { formatDuration } from '@/utils/formatTime';
 import localPodcastData from '../assets/data/podcastFeed.json';
 export interface PodcastEpisode {
 	id: string;
@@ -57,20 +58,6 @@ export default function PodcastFeed({ onEpisodeSelect }: PodcastFeedProps) {
 
 	const handleEpisodePress = (episode: PodcastEpisode) => {
 		onEpisodeSelect(episode);
-	};
-
-	const formatDuration = (duration: string): string => {
-		const seconds = parseInt(duration);
-		if (isNaN(seconds)) return duration;
-
-		const hours = Math.floor(seconds / 3600);
-		const minutes = Math.floor((seconds % 3600) / 60);
-		const secs = seconds % 60;
-
-		if (hours > 0) {
-			return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-		}
-		return `${minutes}:${secs.toString().padStart(2, '0')}`;
 	};
 
 	const renderEpisodeItem = ({ item }: { item: PodcastEpisode }) => (
