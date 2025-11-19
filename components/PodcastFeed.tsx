@@ -1,9 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import * as rssParser from 'react-native-rss-parser';
 
+import { usePodcastFeed } from '@/hooks/podcast';
 import { formatDuration } from '@/utils/formatTime';
-import localPodcastData from '../assets/data/podcastFeed.json';
 export interface PodcastEpisode {
 	id: string;
 	title: string;
@@ -21,68 +20,39 @@ interface PodcastFeedProps {
 }
 
 export default function PodcastFeed({ onEpisodeSelect }: PodcastFeedProps) {
-	const [episodes, setEpisodes] = useState<PodcastEpisode[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
+	const { data, isLoading, error } = usePodcastFeed('https://feeds.megaphone.fm/FSI1483080183');
 
-	useEffect(() => {
-		async function fetchFeed() {
-			try {
-				try {
-					let episodes: PodcastEpisode[];
-					episodes = localPodcastData as PodcastEpisode[];
-					setEpisodes(episodes);
-					console.log('data from local json');
-					setLoading(false);
-					setError(null);
-					return;
-				} catch (localError) {
-					console.log('Local asset not found.', localError);
-				}
-				const response = await fetch('https://feeds.megaphone.fm/FSI1483080183');
-				const rssText = await response.text();
-				const feed = await rssParser.parse(rssText);
-				setEpisodes(feed.items as PodcastEpisode[]);
-				console.log('data from rssFeed');
-				setError(null);
-			} catch (error) {
-				console.error('Error parsing RSS:', error);
-				setError('Failed to load podcast episodes');
-			} finally {
-				setLoading(false);
-			}
+	const handleEpisodePress = (data: PodcastEpisode) => {
+		if (data) {
+			onEpisodeSelect(data);
+		} else {
+			console.error('Failed to load podcast episodes', error);
 		}
-
-		fetchFeed();
-	}, []);
-
-	const handleEpisodePress = (episode: PodcastEpisode) => {
-		onEpisodeSelect(episode);
 	};
 
-	const renderEpisodeItem = ({ item }: { item: PodcastEpisode }) => (
-		<TouchableOpacity style={styles.episode} onPress={() => handleEpisodePress(item)}>
+	const renderEpisodeItem = ({ data }: { data: PodcastEpisode }) => (
+		<TouchableOpacity style={styles.episode} onPress={() => handleEpisodePress(data)}>
 			<View style={styles.episodeHeader}>
-				<Image source={{ uri: item.itunes.image }} style={styles.episodeImage} resizeMode='cover' />
+				<Image source={{ uri: data.itunes.image }} style={styles.episodeImage} resizeMode='cover' />
 				<View style={styles.episodeInfo}>
 					<Text style={styles.title} numberOfLines={2}>
-						{item.title}
+						{data.title}
 					</Text>
-					<Text style={styles.duration}>Duration: {formatDuration(item.itunes.duration)}</Text>
+					<Text style={styles.duration}>Duration: {formatDuration(data.itunes.duration)}</Text>
 				</View>
 			</View>
 
 			<Text style={styles.description} numberOfLines={3}>
-				{item.description}
+				{data.description}
 			</Text>
 
 			<View style={styles.episodeFooter}>
-				<Text style={styles.date}>{new Date(item.published).toLocaleDateString()}</Text>
+				<Text style={styles.date}>{new Date(data.published).toLocaleDateString()}</Text>
 			</View>
 		</TouchableOpacity>
 	);
 
-	if (loading) {
+	if (isLoading) {
 		return (
 			<View style={styles.center}>
 				<ActivityIndicator size='large' color='#FABF47' />
@@ -94,16 +64,16 @@ export default function PodcastFeed({ onEpisodeSelect }: PodcastFeedProps) {
 	if (error) {
 		return (
 			<View style={styles.center}>
-				<Text style={styles.error}>{error}</Text>
+				<Text style={styles.error}>{error.message}</Text>
 			</View>
 		);
 	}
 
 	return (
 		<FlatList
-			data={episodes}
-			keyExtractor={(item) => item.id}
-			renderItem={renderEpisodeItem}
+			data={data}
+			keyExtractor={(data: PodcastEpisode) => data.id}
+			renderItem={({ item }) => renderEpisodeItem({ data: item })}
 			showsVerticalScrollIndicator={false}
 			ListEmptyComponent={
 				<View style={styles.center}>
