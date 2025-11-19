@@ -1,0 +1,45 @@
+import { useQuery } from '@tanstack/react-query';
+import * as rssParser from 'react-native-rss-parser';
+import localPodcastData from '../assets/data/podcastFeed.json';
+
+export interface PodcastEpisode {
+  id: string;
+  title: string;
+  description: string;
+  published: string;
+  enclosures: { url: string }[];
+  itunes: {
+    duration: string;
+    image: string;
+  };
+}
+
+export async function fetchAndParsePodcast(url: string): Promise<PodcastEpisode[]> {
+  try {
+    const episodes = localPodcastData as PodcastEpisode[];
+    if (episodes && episodes.length > 0) {
+      console.log('Using local podcast data');
+      return episodes;
+    }
+  } catch (localError) {
+    console.log('Local asset not found.', localError);
+  }
+
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error('Failed to fetch podcast feed');
+  }
+  const rssText = await res.text();
+  const feed = await rssParser.parse(rssText);
+  return feed.items as PodcastEpisode[];
+}
+
+export function usePodcastFeed(url: string) {
+  return useQuery<PodcastEpisode[], Error>({
+    queryKey: ['podcastFeed', url],
+    queryFn: () => fetchAndParsePodcast(url),
+    staleTime: 1000 * 60 * 10,
+    gcTime: 1000 * 60 * 30,
+    enabled: !!url,
+  });
+}
