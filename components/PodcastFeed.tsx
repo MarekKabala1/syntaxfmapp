@@ -1,8 +1,7 @@
+import { useLastPlayedEpisode, usePodcastFeed } from '@/hooks/podcast';
+import { formatDuration } from '@/utils/formatTime';
 import React from 'react';
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
-import { usePodcastFeed } from '@/hooks/podcast';
-import { formatDuration } from '@/utils/formatTime';
 export interface PodcastEpisode {
 	id: string;
 	title: string;
@@ -16,15 +15,25 @@ export interface PodcastEpisode {
 }
 
 interface PodcastFeedProps {
-	onEpisodeSelect: (episode: PodcastEpisode) => void;
+	onEpisodeSelect: ({ podcastUrl, title, imageUrl }: { podcastUrl: string; title: string; imageUrl: string }) => void;
 }
 
 export default function PodcastFeed({ onEpisodeSelect }: PodcastFeedProps) {
 	const { data, isLoading, error } = usePodcastFeed('https://feeds.megaphone.fm/FSI1483080183');
-
+	const { saveLastPlayed } = useLastPlayedEpisode();
 	const handleEpisodePress = (data: PodcastEpisode) => {
 		if (data) {
-			onEpisodeSelect(data);
+			onEpisodeSelect({
+				podcastUrl: data.enclosures[0].url,
+				title: data.title,
+				imageUrl: data.itunes.image,
+			});
+			saveLastPlayed.mutate({
+				podcastUrl: data.enclosures[0].url,
+				title: data.title,
+				imageUrl: data.itunes.image,
+				currentTime: 0,
+			});
 		} else {
 			console.error('Failed to load podcast episodes', error);
 		}

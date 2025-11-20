@@ -1,7 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { persistQueryClient } from '@tanstack/react-query-persist-client';
+import { QueryClient } from '@tanstack/react-query';
+import { PersistQueryClientProvider, persistQueryClient } from '@tanstack/react-query-persist-client';
+
 import { Stack } from 'expo-router';
 import { Image, ImageBackground } from 'react-native';
 
@@ -17,11 +18,16 @@ const queryClient = new QueryClient({
 	},
 });
 
-const persister = createAsyncStoragePersister({ storage: AsyncStorage });
+const asyncStoragePersister = createAsyncStoragePersister({ storage: AsyncStorage });
 persistQueryClient({
 	queryClient,
-	persister,
+	persister: asyncStoragePersister,
 	maxAge: 1000 * 60 * 60 * 24,
+	dehydrateOptions: {
+		shouldDehydrateQuery: (query) => {
+			return query.queryKey[0] !== 'lastPlayedEpisode';
+		},
+	},
 });
 
 function StackLayout() {
@@ -47,8 +53,8 @@ function StackLayout() {
 
 export default function RootLayout() {
 	return (
-		<QueryClientProvider client={queryClient}>
+		<PersistQueryClientProvider persistOptions={{ persister: asyncStoragePersister }} client={queryClient}>
 			<StackLayout />
-		</QueryClientProvider>
+		</PersistQueryClientProvider>
 	);
 }
