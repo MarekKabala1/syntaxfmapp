@@ -21,6 +21,7 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 	const status = useAudioPlayerStatus(player);
 	const [modalVisible, setModalVisible] = useState(false);
 	const [playbackRate, setPlaybackRate] = useState(player.playbackRate);
+	player.shouldCorrectPitch = true;
 
 	const progressBarrWidth = status.duration > 0 ? (status.currentTime / status.duration) * 100 : 0;
 
@@ -47,6 +48,33 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 		}
 	}, [status.playing, status.currentTime, status.duration, player, activeEpisode, saveLastPlayed]);
 
+	const goForward = () => {
+		const currentTime = player.currentTime;
+		const goTo = currentTime + 15;
+		player.seekTo(goTo);
+		if (activeEpisode?.podcastUrl && status.duration && status.currentTime > 0) {
+			saveLastPlayed.mutate({
+				podcastUrl: activeEpisode.podcastUrl,
+				title: activeEpisode.title,
+				imageUrl: activeEpisode.imageUrl,
+				currentTime: goTo,
+			});
+		}
+	};
+	const skipBack = () => {
+		const currentTime = player.currentTime;
+		const goTo = currentTime - 15;
+		player.seekTo(goTo);
+		if (activeEpisode?.podcastUrl && status.duration && status.currentTime > 0) {
+			saveLastPlayed.mutate({
+				podcastUrl: activeEpisode.podcastUrl,
+				title: activeEpisode.title,
+				imageUrl: activeEpisode.imageUrl,
+				currentTime: goTo,
+			});
+		}
+	};
+
 	const PlaybackRateModal = () => {
 		return (
 			<View style={styles.modalContainer}>
@@ -60,7 +88,7 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 					value={Number(playbackRate)}
 					onValueChange={async (value) => {
 						setPlaybackRate(Number(value.toFixed(1)));
-						player.setPlaybackRate(Number(value.toFixed(1)));
+						player.setPlaybackRate(Number(value.toFixed(1)), 'high');
 					}}
 					step={0.1}
 				/>
@@ -81,9 +109,15 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 			</View>
 			<Text style={styles.title}>{activeEpisode?.title || 'No episode selected'}</Text>
 			<View style={styles.bottomContainer}>
-				<View>
+				<View style={{ flexDirection: 'row', alignItems: 'center' }}>
+					<TouchableOpacity onPress={skipBack}>
+						<Ionicons name='arrow-back' size={12} color='#FABF47' />
+					</TouchableOpacity>
 					<TouchableOpacity onPress={handlePlayPause}>
-						<Ionicons name={status.playing ? 'pause-circle-outline' : 'play-circle-outline'} size={32} color='#FABF47' />
+						<Ionicons name={status.playing ? 'pause' : 'play'} size={30} color='#FABF47' />
+					</TouchableOpacity>
+					<TouchableOpacity onPress={goForward}>
+						<Ionicons name='arrow-forward' size={12} color='#FABF47' />
 					</TouchableOpacity>
 				</View>
 				<TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
