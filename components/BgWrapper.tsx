@@ -6,7 +6,7 @@ const imageBg = require('../assets/images/whitegrit.png');
 export default function BgWrapper({ children }: { children: React.ReactNode }) {
 	return (
 		<ImageBackground source={imageBg} style={styles.image} resizeMode='cover'>
-			<SafeAreaView style={styles.bg}>{children}</SafeAreaView>
+			<SafeAreaView style={styles.bg}>{[children]}</SafeAreaView>
 		</ImageBackground>
 	);
 }
@@ -18,5 +18,7 @@ const styles = StyleSheet.create({
 	},
 	bg: {
 		flex: 1,
+		gap: 10,
+		paddingInline: 16,
 	},
 });
