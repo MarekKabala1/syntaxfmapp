@@ -1,6 +1,6 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { ImageBackground } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 
 const imageBg = require('../../assets/images/whitegrit.png');
 
@@ -8,7 +8,7 @@ export default function TabLayout() {
 	return (
 		<Tabs
 			screenOptions={{
-				headerBackground: () => <ImageBackground style={{ backgroundColor: '#000', minWidth: 600, height: 65 }} source={imageBg} resizeMode='cover' />,
+				headerBackground: () => <ImageBackground style={{ backgroundColor: '#000', minWidth: 600, height: '100%' }} source={imageBg} resizeMode='cover' />,
 				sceneStyle: { backgroundColor: 'transparent' },
 				tabBarActiveTintColor: '#FABF47',
 				tabBarInactiveTintColor: '#888',

@@ -38,7 +38,7 @@ function StackLayout() {
 				headerTitle: () => logoImage,
 				headerTitleAlign: 'center',
 				headerTitleStyle: { color: '#000' },
-				headerBackground: () => <ImageBackground style={{ backgroundColor: '#000', minWidth: 600, minHeight: '100%' }} source={imageBg} resizeMode='cover' />,
+				headerBackground: () => <ImageBackground style={{ backgroundColor: '#000', minWidth: 600, minHeight: '60%' }} source={imageBg} resizeMode='cover' />,
 			}}>
 			<Stack.Screen
 				name='index'
