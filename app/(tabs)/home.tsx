@@ -20,8 +20,8 @@ export default function Home() {
 							resizeMode='contain'
 						/>
 						<Text style={styles.heroHostedByText}>Wes Bos</Text>
-						<Text style={{ color: '#fff' }}>×</Text>
 					</View>
+					<Text style={{ color: '#fff' }}>×</Text>
 					<View style={styles.heroImageContainer}>
 						<Image
 							source={{ uri: 'https://github.com/stolinski.png' }}
@@ -30,8 +30,8 @@ export default function Home() {
 							resizeMode='contain'
 						/>
 						<Text style={styles.heroHostedByText}>Scott Tolinski</Text>
-						<Text style={{ color: '#fff' }}>×</Text>
 					</View>
+					<Text style={{ color: '#fff' }}>×</Text>
 					<View style={styles.heroImageContainer}>
 						<Image
 							source={{ uri: 'https://github.com/w3cj.png' }}
@@ -80,32 +80,31 @@ export default function Home() {
 			<View style={[styles.treatSection, styles.center]}>
 				<Text style={styles.treatHeading}>Served Fresh Twice Weekly</Text>
 				<View style={styles.treatContainer}>
-					<View style={styles.treatWrapper}>
+					<View style={[styles.treatWrapper, styles.center]}>
 						<TouchableOpacity onPress={() => {}}>
-							<View style={styles.treatInfo}>
+							<View style={[styles.treatInfo, styles.center]}>
 								<Text style={styles.treatLength}>15m</Text>
 								<Text style={styles.treatDay}>Monday</Text>
 							</View>
 							<View>
 								<Text style={styles.treat}>Hasty Treat</Text>
 							</View>
-							<Text>Quick n&apos; Informative</Text>
+							<Text style={{ color: '#fff', fontSize: 11, textAlign: 'center', marginBottom: 10 }}>Quick n&apos; Informative</Text>
 						</TouchableOpacity>
 					</View>
 					<View style={[styles.treatWrapper, styles.center]}>
 						<TouchableOpacity onPress={() => {}}>
-							<View style={styles.treatInfo}>
+							<View style={[styles.treatInfo, styles.center]}>
 								<Text style={styles.treatLength}>60m</Text>
 								<Text style={styles.treatDay}>Wednesday</Text>
 							</View>
-							<View>
-								<Text style={styles.treat}>Tasty Treat</Text>
-							</View>
-							<Text>Deep Dives</Text>
+							<Text style={styles.treat}>Tasty Treat</Text>
+							<Text style={{ color: '#fff', fontSize: 11, textAlign: 'center', marginBottom: 10 }}>Deep Dives</Text>
 						</TouchableOpacity>
 					</View>
 				</View>
 			</View>
+			{/* </View> */}
 		</BgWrapper>
 	);
 }
@@ -116,7 +115,7 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 	},
 	heroHeading: {
-		letterSpacing: -0.4,
+		letterSpacing: -1,
 		lineHeight: 60,
 		fontSize: 40,
 		color: '#fff',
@@ -127,6 +126,9 @@ const styles = StyleSheet.create({
 	},
 	heroHostedBy: {
 		flexDirection: 'row',
+		width: '100%',
+		flexWrap: 'wrap',
+		paddingHorizontal: 20,
 		justifyContent: 'center',
 		alignItems: 'center',
 		gap: 12,
@@ -136,7 +138,7 @@ const styles = StyleSheet.create({
 		color: '#fff',
 		borderBottomWidth: 1,
 		borderColor: '#FABF47',
-		lineHeight: 12,
+		lineHeight: 15,
 	},
 	heroImageContainer: {
 		flexDirection: 'row',
@@ -176,9 +178,9 @@ const styles = StyleSheet.create({
 		backgroundColor: 'tarnsparent',
 		borderWidth: 3,
 		borderColor: '#ffffff1a',
-		padding: 30,
+		padding: 32,
 		borderRadius: 5,
-		gap: 10,
+		gap: 32,
 	},
 	treatHeading: {
 		color: '#fff',
@@ -193,25 +195,43 @@ const styles = StyleSheet.create({
 		flexDirection: 'row',
 		gap: 20,
 		marginTop: 10,
-		borderWidth: 1,
-		borderColor: 'red',
 	},
 	treatWrapper: {
-		borderWidth: 1,
-		borderColor: 'blue',
+		minWidth: 130,
 	},
 	treatInfo: {
 		flexDirection: 'row',
+		gap: 8,
 	},
 	treatLength: {
-		color: '#fff',
-		fontSize: 12,
+		color: '#000',
+		fontSize: 11,
+		backgroundColor: '#fff',
+		padding: 4,
+		fontWeight: '500',
+		zIndex: 2,
+		marginBottom: -4,
 	},
 	treatDay: {
 		color: '#fff',
-		fontSize: 12,
+		fontSize: 11,
+		padding: 4,
+		letterSpacing: -0.5,
+		marginBottom: -4,
+		backgroundColor: 'rgb(54, 45, 89)',
+		transform: [{ rotate: '2deg' }],
+		fontWeight: '500',
+		textTransform: 'uppercase',
+		zIndex: 2,
 	},
 	treat: {
-		color: '#fff',
+		color: '#000',
+		fontWeight: '900',
+		textTransform: 'uppercase',
+		padding: 6,
+		marginBottom: 10,
+		fontSize: 16,
+		backgroundColor: '#FABF47',
+		zIndex: 1,
 	},
 });
