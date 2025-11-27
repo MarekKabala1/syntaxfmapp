@@ -2,7 +2,7 @@
 	"expo": {
 		"name": "syntaxfmapp",
 		"slug": "syntaxfmapp",
-		"version": "1.0.0",
+		"version": "0.0.1",
 		"orientation": "portrait",
 		"icon": "./assets/images/icon.png",
 		"scheme": "syntaxfmapp",
@@ -21,7 +21,12 @@
 			"edgeToEdgeEnabled": true,
 			"predictiveBackGestureEnabled": false,
 			"package": "com.toxic87.syntaxfmapp",
-			"permissions": ["android.permission.RECORD_AUDIO", "android.permission.MODIFY_AUDIO_SETTINGS"]
+			"permissions": [
+				"android.permission.RECORD_AUDIO",
+				"android.permission.MODIFY_AUDIO_SETTINGS",
+				"android.permission.RECORD_AUDIO",
+				"android.permission.MODIFY_AUDIO_SETTINGS"
+			]
 		},
 		"web": {
 			"output": "static",
@@ -66,6 +71,12 @@
 				"projectId": "109a3eb4-9e45-48f6-a91f-d29e5a3f5443"
 			}
 		},
-		"owner": "toxic87"
+		"owner": "toxic87",
+		"runtimeVersion": {
+			"policy": "appVersion"
+		},
+		"updates": {
+			"url": "https://u.expo.dev/109a3eb4-9e45-48f6-a91f-d29e5a3f5443"
+		}
 	}
 }
