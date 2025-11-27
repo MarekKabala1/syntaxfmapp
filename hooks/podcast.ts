@@ -2,7 +2,7 @@ import type { AudioPlayerProps } from '@/components/AudioPlayer.tsx';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import * as rssParser from 'react-native-rss-parser';
-import localPodcastData from '../assets/data/podcastFeed.json';
+// import localPodcastData from '../assets/data/podcastFeed.json';
 
 export interface PodcastEpisode {
   id: string;
@@ -15,17 +15,17 @@ export interface PodcastEpisode {
     image: string;
   };
 }
-
+//ToDo:Add __DEV__ check to use local data only in dev mode
 export async function fetchAndParsePodcast(url: string): Promise<PodcastEpisode[]> {
-  try {
-    const episodes = localPodcastData as PodcastEpisode[];
-    if (episodes && episodes.length > 0) {
-      console.log('Using local podcast data');
-      return episodes;
-    }
-  } catch (localError) {
-    console.log('Local asset not found.', localError);
-  }
+  // try {
+  //   const episodes = localPodcastData as PodcastEpisode[];
+  //   if (episodes && episodes.length > 0) {
+  //     console.log('Using local podcast data');
+  //     return episodes;
+  //   }
+  // } catch (localError) {
+  //   console.log('Local asset not found.', localError);
+  // }
 
   const res = await fetch(url);
   if (!res.ok) {
