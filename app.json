@@ -1,7 +1,7 @@
 {
 	"expo": {
-		"name": "syntaxfmapp",
-		"slug": "SyntaxFM",
+		"name": "SyntaxFM",
+		"slug": "syntaxfmapp",
 		"version": "0.0.1",
 		"orientation": "portrait",
 		"icon": "./assets/images/icon.png",
