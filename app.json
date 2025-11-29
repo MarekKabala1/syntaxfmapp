@@ -1,7 +1,7 @@
 {
 	"expo": {
 		"name": "syntaxfmapp",
-		"slug": "syntaxfmapp",
+		"slug": "SyntaxFM",
 		"version": "0.0.1",
 		"orientation": "portrait",
 		"icon": "./assets/images/icon.png",
@@ -10,7 +10,10 @@
 		"newArchEnabled": true,
 		"ios": {
 			"supportsTablet": true,
-			"bundleIdentifier": "com.toxic87.syntaxfmapp"
+			"bundleIdentifier": "com.toxic87.syntaxfmapp",
+			"infoPlist": {
+				"UIBackgroundModes": ["audio"]
+			}
 		},
 		"android": {
 			"adaptiveIcon": {

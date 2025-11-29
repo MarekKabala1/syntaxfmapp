@@ -114,8 +114,8 @@ const styles = StyleSheet.create({
 		marginBottom: 12,
 	},
 	episodeImage: {
-		width: 80,
-		height: 80,
+		width: 90,
+		height: 90,
 		borderRadius: 8,
 		marginRight: 12,
 	},

@@ -1,8 +1,7 @@
 import { useLastPlayedEpisode } from '@/hooks/podcast';
 import { formatDuration } from '@/utils/formatTime';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import Slider from '@react-native-community/slider';
-import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
+import { Ionicons } from '@expo/vector-icons';
+import { setAudioModeAsync, useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
@@ -19,11 +18,23 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 
 	const player = useAudioPlayer(activeEpisode?.podcastUrl || '');
 	const status = useAudioPlayerStatus(player);
-	const [modalVisible, setModalVisible] = useState(false);
 	const [playbackRate, setPlaybackRate] = useState(player.playbackRate);
 	player.shouldCorrectPitch = true;
 
 	const progressBarrWidth = status.duration > 0 ? (status.currentTime / status.duration) * 100 : 0;
+
+	useEffect(() => {
+		const configureAudio = async () => {
+			await setAudioModeAsync({
+				playsInSilentMode: true,
+				shouldPlayInBackground: true,
+				interruptionModeAndroid: 'duckOthers',
+				interruptionMode: 'mixWithOthers',
+			});
+		};
+
+		configureAudio();
+	}, []);
 
 	useEffect(() => {
 		if (activeEpisode?.podcastUrl) {
@@ -74,24 +85,23 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 			});
 		}
 	};
+	const PlaybackRate = () => {
+		const rates = [1.0, 1.2, 1.5, 1.8, 2.0];
 
-	const PlaybackRateModal = () => {
+		const handleRatePress = () => {
+			const currentIndex = rates.indexOf(playbackRate);
+			const nextIndex = (currentIndex + 1) % rates.length;
+			const nextRate = rates[nextIndex];
+
+			setPlaybackRate(nextRate);
+			player.setPlaybackRate(nextRate, 'high');
+		};
+
 		return (
-			<View style={styles.modalContainer}>
-				<Text style={styles.modalTitle}>Playback Rate</Text>
-				<Text style={{ color: '#FABF47' }}>{playbackRate.toFixed(1)}x</Text>
-				<Slider
-					style={{ width: '70%', height: 0, backgroundColor: '#FABF47' }}
-					minimumValue={0.5}
-					maximumValue={2}
-					maximumTrackTintColor='#FABF47'
-					value={Number(playbackRate)}
-					onValueChange={async (value) => {
-						setPlaybackRate(Number(value.toFixed(1)));
-						player.setPlaybackRate(Number(value.toFixed(1)), 'high');
-					}}
-					step={0.1}
-				/>
+			<View style={styles.playbackRate}>
+				<TouchableOpacity style={styles.playbackRateButton} onPress={handleRatePress}>
+					<Text style={styles.playbackRateText}>{playbackRate.toFixed(1)}x</Text>
+				</TouchableOpacity>
 			</View>
 		);
 	};
@@ -105,32 +115,31 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 						<Text style={styles.title}>Player</Text>
 					</View>
 				</View>
-				{activeEpisode?.imageUrl ? <Image style={{ width: 50, height: 50 }} source={{ uri: activeEpisode.imageUrl }} /> : null}
+				{activeEpisode?.imageUrl ? <Image style={styles.image} source={{ uri: activeEpisode.imageUrl }} /> : null}
 			</View>
 			<Text style={styles.title}>{activeEpisode?.title || 'No episode selected'}</Text>
+			<View style={styles.progressBarContainer}>
+				<Text style={styles.progressBarTime}>{formatDuration(status.currentTime.toString())}</Text>
+				<View style={styles.progressBar}>
+					<Text style={[styles.progressBarFill, { width: `${progressBarrWidth}%` }]}>{progressBarrWidth}</Text>
+				</View>
+				<Text style={styles.progressBarTime}>{formatDuration(status.duration.toString())}</Text>
+			</View>
 			<View style={styles.bottomContainer}>
-				<View style={{ flexDirection: 'row', alignItems: 'center' }}>
+				<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
 					<TouchableOpacity onPress={skipBack}>
-						<Ionicons name='arrow-back' size={12} color='#FABF47' />
+						<Ionicons name='arrow-undo-outline' size={18} color='#FABF47' />
+						<Text style={{ color: '#FABF47', fontSize: 10, fontWeight: 'bold' }}>15</Text>
 					</TouchableOpacity>
 					<TouchableOpacity onPress={handlePlayPause}>
-						<Ionicons name={status.playing ? 'pause' : 'play'} size={30} color='#FABF47' />
+						<Ionicons name={status.playing ? 'pause-outline' : 'play-outline'} size={35} color='#FABF47' />
 					</TouchableOpacity>
 					<TouchableOpacity onPress={goForward}>
-						<Ionicons name='arrow-forward' size={12} color='#FABF47' />
+						<Ionicons name='arrow-redo-outline' size={18} color='#FABF47' />
+						<Text style={{ color: '#FABF47', fontSize: 10, fontWeight: 'bold' }}>15</Text>
 					</TouchableOpacity>
 				</View>
-				<TouchableOpacity onPress={() => setModalVisible(!modalVisible)}>
-					<MaterialCommunityIcons name='play-speed' size={24} color='#FABF47' />
-				</TouchableOpacity>
-				{modalVisible ? <PlaybackRateModal /> : null}
-				<View style={styles.progressBarContainer}>
-					<Text style={styles.progressBarTime}>{formatDuration(status.currentTime.toString())}</Text>
-					<View style={styles.progressBar}>
-						<Text style={[styles.progressBarFill, { width: `${progressBarrWidth}%` }]}>{progressBarrWidth}</Text>
-					</View>
-					<Text style={styles.progressBarTime}>{formatDuration(status.duration.toString())}</Text>
-				</View>
+				<PlaybackRate />
 			</View>
 		</View>
 	);
@@ -139,7 +148,6 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 const styles = StyleSheet.create({
 	container: {
 		width: '100%',
-		height: 130,
 		borderWidth: 1,
 		borderColor: '#FABF47',
 		borderRadius: 10,
@@ -148,6 +156,7 @@ const styles = StyleSheet.create({
 		padding: 10,
 		zIndex: 1,
 		position: 'relative',
+		marginBottom: 10,
 	},
 	headerContainer: {
 		display: 'flex',
@@ -160,30 +169,29 @@ const styles = StyleSheet.create({
 		justifyContent: 'center',
 	},
 	titleImage: {
-		width: 100,
-		height: 30,
+		width: 120,
+		height: 40,
 	},
 	title: {
 		color: '#FABF47',
-		fontSize: 10,
+		fontSize: 12,
 		fontWeight: 'bold',
 		width: '100%',
 		textAlign: 'center',
-		marginBottom: 5,
+		marginBottom: 8,
+	},
+	image: {
+		width: 90,
+		height: 90,
 	},
 	titleContainer: {
 		width: '100%',
 		justifyContent: 'center',
 		alignItems: 'center',
 	},
-	bottomContainer: {
-		flexDirection: 'row',
-		alignItems: 'center',
-		justifyContent: 'space-between',
-	},
 	progressBarContainer: {
 		flexDirection: 'row',
-		width: '80%',
+		width: '100%',
 	},
 	progressBar: {
 		flex: 1,
@@ -202,29 +210,21 @@ const styles = StyleSheet.create({
 		fontSize: 10,
 		fontWeight: 'bold',
 	},
-	modalContainer: {
-		width: '106%',
-		height: 90,
-		position: 'absolute',
-		top: -90,
-		left: -10,
-		borderWidth: 1,
-		borderColor: '#FABF47',
-		borderRadius: 10,
-		backgroundColor: 'rgba(0, 0, 0, 0.8)',
-		justifyContent: 'center',
-		alignItems: 'center',
-	},
-	modalTitle: {
-		color: '#FABF47',
-		fontSize: 16,
-		fontWeight: 'bold',
-	},
-	modalContent: {
-		height: '100%',
+	bottomContainer: {
 		width: '100%',
-		backgroundColor: '#000',
+		flexDirection: 'row',
 		justifyContent: 'center',
-		alignItems: 'center',
+		gap: 20,
+	},
+
+	playbackRate: {
+		justifyContent: 'center',
+		alignItems: 'flex-end',
+	},
+	playbackRateButton: {},
+	playbackRateText: {
+		color: '#FABF47',
+		fontSize: 12,
+		fontWeight: 'bold',
 	},
 });
