@@ -6,11 +6,13 @@
 	"build": {
 		"development": {
 			"developmentClient": true,
-			"distribution": "internal"
+			"distribution": "internal",
+			"environment": "development"
 		},
 		"preview": {
 			"distribution": "internal",
 			"channel": "main",
+			"environment": "preview",
 			"android": {
 				"image": "latest",
 				"buildType": "apk"
@@ -21,6 +23,7 @@
 		},
 		"production": {
 			"channel": "production",
+			"environment": "production",
 			"android": {
 				"image": "latest",
 				"buildType": "apk"
