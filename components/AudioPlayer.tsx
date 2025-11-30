@@ -1,4 +1,4 @@
-import { useLastPlayedEpisode } from '@/hooks/podcast';
+import { useLastPlayedEpisode } from '@/hooks/usePodcast';
 import { formatDuration } from '@/utils/formatTime';
 import { Ionicons } from '@expo/vector-icons';
 import { setAudioModeAsync, useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';

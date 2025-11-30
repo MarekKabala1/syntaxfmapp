@@ -1,22 +1,8 @@
-import { useLastPlayedEpisode, usePodcastFeed } from '@/hooks/podcast';
+import { useLastPlayedEpisode, usePodcastFeed } from '@/hooks/usePodcast';
+import { PodcastEpisode, PodcastFeedProps } from '@/types/podcast';
 import { formatDuration } from '@/utils/formatTime';
 import React from 'react';
 import { ActivityIndicator, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-export interface PodcastEpisode {
-	id: string;
-	title: string;
-	description: string;
-	published: string;
-	enclosures: { url: string }[];
-	itunes: {
-		duration: string;
-		image: string;
-	};
-}
-
-interface PodcastFeedProps {
-	onEpisodeSelect: ({ podcastUrl, title, imageUrl }: { podcastUrl: string; title: string; imageUrl: string }) => void;
-}
 
 export default function PodcastFeed({ onEpisodeSelect }: PodcastFeedProps) {
 	const { data, isLoading, error } = usePodcastFeed('https://feeds.megaphone.fm/FSI1483080183');
