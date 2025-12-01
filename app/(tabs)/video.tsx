@@ -5,9 +5,6 @@ import { Image, ScrollView, Text, View } from 'react-native';
 
 export default function Video() {
 	const { isLoading, error, videos } = useSyntaxFMVideos();
-	// useEffect(() => {
-	// 	console.log(videos);
-	// }, [videos]);
 	if (isLoading) {
 		return (
 			<BgWrapper>
@@ -29,6 +26,7 @@ export default function Video() {
 					<View key={video.id} style={{ marginBottom: 20 }}>
 						<Image source={{ uri: video.thumbnail }} style={{ width: '100%', height: 200, borderRadius: 10, marginBottom: 10 }} resizeMode='cover' />
 						<Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>{video.title}</Text>
+						<Text style={{ color: '#ccc', fontSize: 14 }}>hi</Text>
 					</View>
 				))}
 			</ScrollView>
