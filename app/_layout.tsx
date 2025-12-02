@@ -5,6 +5,21 @@ import { PersistQueryClientProvider, persistQueryClient } from '@tanstack/react-
 
 import { Stack } from 'expo-router';
 import { Image, ImageBackground } from 'react-native';
+import * as Sentry from '@sentry/react-native';
+
+Sentry.init({
+  dsn: 'https://3c936a9d2d47e3f9ccfbcb804ce68f93@o4508151262347264.ingest.de.sentry.io/4510463735693392',
+
+  // Adds more context data to events (IP address, cookies, user, etc.)
+  // For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
+  sendDefaultPii: true,
+
+  // Enable Logs
+  enableLogs: true,
+
+  // uncomment the line below to enable Spotlight (https://spotlightjs.com)
+  // spotlight: __DEV__,
+});
 
 const logoImage = <Image style={{ width: 300, height: 70 }} source={require('../assets/images/SyntaxLogoWide.png')} resizeMode='contain' />;
 const imageBg = require('../assets/images/whitegrit.png');
@@ -51,10 +66,10 @@ function StackLayout() {
 	);
 }
 
-export default function RootLayout() {
+export default Sentry.wrap(function RootLayout() {
 	return (
 		<PersistQueryClientProvider persistOptions={{ persister: asyncStoragePersister }} client={queryClient}>
 			<StackLayout />
 		</PersistQueryClientProvider>
 	);
-}
+});

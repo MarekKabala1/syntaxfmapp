@@ -1,86 +1,95 @@
 {
-	"expo": {
-		"name": "SyntaxFM",
-		"slug": "syntaxfmapp",
-		"version": "0.0.2",
-		"orientation": "portrait",
-		"icon": "./assets/images/icon.png",
-		"scheme": "syntaxfmapp",
-		"userInterfaceStyle": "automatic",
-		"newArchEnabled": true,
-		"ios": {
-			"supportsTablet": true,
-			"bundleIdentifier": "com.toxic87.syntaxfmapp",
-			"infoPlist": {
-				"UIBackgroundModes": ["audio"]
-			}
-		},
-		"android": {
-			"adaptiveIcon": {
-				"backgroundColor": "#000000",
-				"foregroundImage": "./assets/images/coverart-512.png",
-				"backgroundImage": "./assets/images/whitegrit.png"
-			},
-			"edgeToEdgeEnabled": true,
-			"predictiveBackGestureEnabled": false,
-			"package": "com.toxic87.syntaxfmapp",
-			"permissions": [
-				"android.permission.RECORD_AUDIO",
-				"android.permission.MODIFY_AUDIO_SETTINGS",
-				"android.permission.RECORD_AUDIO",
-				"android.permission.MODIFY_AUDIO_SETTINGS"
-			]
-		},
-		"web": {
-			"output": "static",
-			"favicon": "./assets/images/coverart-128.png"
-		},
-		"plugins": [
-			"expo-router",
-			[
-				"expo-splash-screen",
-				{
-					"image": "./assets/images/splash.png",
-					"imageWidth": 200,
-					"resizeMode": "contain",
-					"backgroundColor": "#000",
-					"dark": {
-						"backgroundColor": "#000000"
-					}
-				}
-			],
-			[
-				"expo-video",
-				{
-					"supportsBackgroundPlayback": true,
-					"supportsPictureInPicture": true
-				}
-			],
-			[
-				"expo-audio",
-				{
-					"microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
-				}
-			],
-			"expo-asset"
-		],
-		"experiments": {
-			"typedRoutes": true,
-			"reactCompiler": true
-		},
-		"extra": {
-			"router": {},
-
-			"eas": {
-				"projectId": "109a3eb4-9e45-48f6-a91f-d29e5a3f5443"
-			}
-		},
-		"owner": "toxic87",
-		"runtimeVersion": {
-			"policy": "appVersion"
-		},
-		"updates": {
-			"url": "https://u.expo.dev/109a3eb4-9e45-48f6-a91f-d29e5a3f5443"
-		}
-	}
+  "expo": {
+    "name": "SyntaxFM",
+    "slug": "syntaxfmapp",
+    "version": "0.0.2",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "syntaxfmapp",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.toxic87.syntaxfmapp",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "audio"
+        ]
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#000000",
+        "foregroundImage": "./assets/images/coverart-512.png",
+        "backgroundImage": "./assets/images/whitegrit.png"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "package": "com.toxic87.syntaxfmapp",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/coverart-128.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#000",
+          "dark": {
+            "backgroundColor": "#000000"
+          }
+        }
+      ],
+      [
+        "expo-video",
+        {
+          "supportsBackgroundPlayback": true,
+          "supportsPictureInPicture": true
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
+        }
+      ],
+      "expo-asset",
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "project": "syntaxapp",
+          "organization": "mk-3c"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "109a3eb4-9e45-48f6-a91f-d29e5a3f5443"
+      }
+    },
+    "owner": "toxic87",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/109a3eb4-9e45-48f6-a91f-d29e5a3f5443"
+    }
+  }
 }
