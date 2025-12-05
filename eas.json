@@ -10,6 +10,7 @@
 			"environment": "development",
 			"env": {
 				"YOUTUBE_API_KEY": "secret:YOUTUBE_API_KEY",
+				"SENTRY_AUTH_TOKEN": "secret:SENTRY_AUTH_TOKEN",
 				"APP_VARIANT": "development"
 			}
 		},
@@ -19,6 +20,7 @@
 			"environment": "preview",
 			"env": {
 				"YOUTUBE_API_KEY": "secret:YOUTUBE_API_KEY",
+				"SENTRY_AUTH_TOKEN": "secret:SENTRY_AUTH_TOKEN",
 				"APP_VARIANT": "production"
 			},
 			"android": {
@@ -34,6 +36,7 @@
 			"environment": "production",
 			"env": {
 				"YOUTUBE_API_KEY": "secret:YOUTUBE_API_KEY",
+				"SENTRY_AUTH_TOKEN": "secret:SENTRY_AUTH_TOKEN",
 				"APP_VARIANT": "production"
 			},
 			"android": {
