@@ -20,12 +20,6 @@ Sentry.init({
 	tracesSampleRate: 1.0,
 	integrations: [navigationIntegration],
 	enableNativeFramesTracking: !isRunningInExpoGo(),
-
-	// Enable Logs
-	enableLogs: true,
-
-	// uncomment the line below to enable Spotlight (https://spotlightjs.com)
-	// spotlight: __DEV__,
 });
 
 const logoImage = <Image style={{ width: 300, height: 70 }} source={require('../assets/images/SyntaxLogoWide.png')} resizeMode='contain' />;
