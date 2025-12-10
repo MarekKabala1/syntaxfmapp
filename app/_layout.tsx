@@ -3,23 +3,14 @@ import * as Sentry from '@sentry/react-native';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 import { QueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider, persistQueryClient } from '@tanstack/react-query-persist-client';
-import { isRunningInExpoGo } from 'expo';
 import { Stack } from 'expo-router';
 import { Image, ImageBackground } from 'react-native';
 
-const navigationIntegration = Sentry.reactNavigationIntegration({
-	enableTimeToInitialDisplay: !isRunningInExpoGo(),
-});
-
 Sentry.init({
-	dsn: 'https://3c936a9d2d47e3f9ccfbcb804ce68f93@o4508151262347264.ingest.de.sentry.io/4510463735693392',
-
+	dsn: 'https://d28491e1b8f26b6a29beefe0093c6d02@o4508151262347264.ingest.de.sentry.io/4508158889689168',
 	// Adds more context data to events (IP address, cookies, user, etc.)
 	// For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
 	sendDefaultPii: true,
-	tracesSampleRate: 1.0,
-	integrations: [navigationIntegration],
-	enableNativeFramesTracking: !isRunningInExpoGo(),
 });
 
 const logoImage = <Image style={{ width: 300, height: 70 }} source={require('../assets/images/SyntaxLogoWide.png')} resizeMode='contain' />;
@@ -67,10 +58,11 @@ function StackLayout() {
 	);
 }
 
-export default Sentry.wrap(function RootLayout() {
+function RootLayout() {
 	return (
 		<PersistQueryClientProvider persistOptions={{ persister: asyncStoragePersister }} client={queryClient}>
 			<StackLayout />
 		</PersistQueryClientProvider>
 	);
-});
+}
+export default Sentry.wrap(RootLayout);
