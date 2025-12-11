@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
 		paddingBottom: 20,
 	},
 	episode: {
-		backgroundColor: 'rgba(250, 191, 71, 0.8)',
+		backgroundColor: 'rgba(250, 191, 71, 0.9)',
 		marginVertical: 8,
 		padding: 16,
 		borderRadius: 12,
@@ -100,8 +100,8 @@ const styles = StyleSheet.create({
 		marginBottom: 12,
 	},
 	episodeImage: {
-		width: 90,
-		height: 90,
+		width: 100,
+		height: 100,
 		borderRadius: 8,
 		marginRight: 12,
 	},
