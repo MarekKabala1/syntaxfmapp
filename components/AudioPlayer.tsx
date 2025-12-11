@@ -21,19 +21,23 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 	const [playbackRate, setPlaybackRate] = useState(player.playbackRate);
 	player.shouldCorrectPitch = true;
 
-	const progressBarrWidth = status.duration > 0 ? (status.currentTime / status.duration) * 100 : 0;
+	const progressBarrWidth = useMemo(() => {
+		return status.duration > 0 ? (status.currentTime / status.duration) * 100 : 0;
+	}, [status.currentTime, status.duration]);
 
 	useEffect(() => {
-		const configureAudio = async () => {
-			await setAudioModeAsync({
-				playsInSilentMode: true,
-				shouldPlayInBackground: true,
-				interruptionModeAndroid: 'duckOthers',
-				interruptionMode: 'mixWithOthers',
-			});
-		};
+		if (Math.abs(player.playbackRate - playbackRate) > 0.01) {
+			setPlaybackRate(player.playbackRate);
+		}
+	}, [player.playbackRate, playbackRate]);
 
-		configureAudio();
+	useEffect(() => {
+		setAudioModeAsync({
+			playsInSilentMode: true,
+			shouldPlayInBackground: true,
+			interruptionModeAndroid: 'duckOthers',
+			interruptionMode: 'doNotMix',
+		});
 	}, []);
 
 	useEffect(() => {
@@ -41,7 +45,7 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 			player.replace(activeEpisode.podcastUrl);
 			player.seekTo(activeEpisode.currentTime || 0);
 		}
-	}, [activeEpisode?.podcastUrl, player, activeEpisode?.currentTime]);
+	}, [activeEpisode?.podcastUrl, activeEpisode?.currentTime, player]);
 
 	const handlePlayPause = useCallback(() => {
 		if (status.playing) {
@@ -59,11 +63,11 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 		}
 	}, [status.playing, status.currentTime, status.duration, player, activeEpisode, saveLastPlayed]);
 
-	const goForward = () => {
+	const goForward = useCallback(() => {
 		const currentTime = player.currentTime;
-		const goTo = currentTime + 15;
+		const goTo = Math.max(0, Math.min(currentTime + 15, status.duration || 0));
 		player.seekTo(goTo);
-		if (activeEpisode?.podcastUrl && status.duration && status.currentTime > 0) {
+		if (activeEpisode?.podcastUrl && status.duration && goTo > 0) {
 			saveLastPlayed.mutate({
 				podcastUrl: activeEpisode.podcastUrl,
 				title: activeEpisode.title,
@@ -71,12 +75,13 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 				currentTime: goTo,
 			});
 		}
-	};
-	const skipBack = () => {
+	}, [player, status.duration, activeEpisode, saveLastPlayed]);
+
+	const skipBack = useCallback(() => {
 		const currentTime = player.currentTime;
-		const goTo = currentTime - 15;
+		const goTo = Math.max(0, currentTime - 15);
 		player.seekTo(goTo);
-		if (activeEpisode?.podcastUrl && status.duration && status.currentTime > 0) {
+		if (activeEpisode?.podcastUrl && status.duration && goTo > 0) {
 			saveLastPlayed.mutate({
 				podcastUrl: activeEpisode.podcastUrl,
 				title: activeEpisode.title,
@@ -84,13 +89,13 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 				currentTime: goTo,
 			});
 		}
-	};
-	const PlaybackRate = () => {
+	}, [player, status.duration, activeEpisode, saveLastPlayed]);
+	const PlaybackRate = useMemo(() => {
 		const rates = [1.0, 1.2, 1.5, 1.8, 2.0];
 
 		const handleRatePress = () => {
-			const currentIndex = rates.indexOf(playbackRate);
-			const nextIndex = (currentIndex + 1) % rates.length;
+			const currentIndex = rates.findIndex((rate) => Math.abs(rate - playbackRate) < 0.01);
+			const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % rates.length;
 			const nextRate = rates[nextIndex];
 
 			setPlaybackRate(nextRate);
@@ -98,13 +103,11 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 		};
 
 		return (
-			<View style={styles.playbackRate}>
-				<TouchableOpacity style={styles.playbackRateButton} onPress={handleRatePress}>
-					<Text style={styles.playbackRateText}>{playbackRate.toFixed(1)}x</Text>
-				</TouchableOpacity>
-			</View>
+			<TouchableOpacity style={styles.playbackRateButton} onPress={handleRatePress}>
+				<Text style={styles.playbackRateText}>{playbackRate.toFixed(1)}x</Text>
+			</TouchableOpacity>
 		);
-	};
+	}, [playbackRate, player]);
 
 	return (
 		<View style={styles.container}>
@@ -121,25 +124,27 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 			<View style={styles.progressBarContainer}>
 				<Text style={styles.progressBarTime}>{formatDuration(status.currentTime.toString())}</Text>
 				<View style={styles.progressBar}>
-					<Text style={[styles.progressBarFill, { width: `${progressBarrWidth}%` }]}>{progressBarrWidth}</Text>
+					<View style={[styles.progressBarFill, { width: `${progressBarrWidth}%` }]} />
 				</View>
 				<Text style={styles.progressBarTime}>{formatDuration(status.duration.toString())}</Text>
 			</View>
 			<View style={styles.bottomContainer}>
-				<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-					<TouchableOpacity onPress={skipBack}>
-						<Ionicons name='arrow-undo-outline' size={18} color='#FABF47' />
-						<Text style={{ color: '#FABF47', fontSize: 10, fontWeight: 'bold' }}>15</Text>
-					</TouchableOpacity>
-					<TouchableOpacity onPress={handlePlayPause}>
-						<Ionicons name={status.playing ? 'pause-outline' : 'play-outline'} size={35} color='#FABF47' />
-					</TouchableOpacity>
-					<TouchableOpacity onPress={goForward}>
-						<Ionicons name='arrow-redo-outline' size={18} color='#FABF47' />
-						<Text style={{ color: '#FABF47', fontSize: 10, fontWeight: 'bold' }}>15</Text>
-					</TouchableOpacity>
+				<View style={styles.controlsContainer}>
+					<View style={styles.controlsRow}>
+						<TouchableOpacity onPress={skipBack}>
+							<Ionicons name='arrow-undo-outline' size={18} color='#FABF47' />
+							<Text style={styles.skipText}>15</Text>
+						</TouchableOpacity>
+						<TouchableOpacity onPress={handlePlayPause}>
+							<Ionicons name={status.playing ? 'pause-outline' : 'play-outline'} size={35} color='#FABF47' />
+						</TouchableOpacity>
+						<TouchableOpacity onPress={goForward}>
+							<Ionicons name='arrow-redo-outline' size={18} color='#FABF47' />
+							<Text style={styles.skipText}>15</Text>
+						</TouchableOpacity>
+					</View>
 				</View>
-				<PlaybackRate />
+				{PlaybackRate}
 			</View>
 		</View>
 	);
@@ -214,17 +219,33 @@ const styles = StyleSheet.create({
 		width: '100%',
 		flexDirection: 'row',
 		justifyContent: 'center',
-		gap: 20,
 	},
-
-	playbackRate: {
+	controlsContainer: {
+		flexDirection: 'row',
+		alignItems: 'center',
+	},
+	controlsRow: {
+		position: 'relative',
+		flexDirection: 'row',
+		alignItems: 'center',
 		justifyContent: 'center',
-		alignItems: 'flex-end',
+		gap: 10,
 	},
-	playbackRateButton: {},
+	skipText: {
+		color: '#FABF47',
+		fontSize: 10,
+		fontWeight: 'bold',
+	},
+	playbackRateButton: {
+		position: 'absolute',
+		right: '20%',
+		top: '50%',
+		transform: [{ translateY: '-50%' }],
+		justifyContent: 'center',
+	},
 	playbackRateText: {
 		color: '#FABF47',
-		fontSize: 12,
+		fontSize: 16,
 		fontWeight: 'bold',
 	},
 });
