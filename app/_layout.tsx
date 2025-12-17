@@ -1,10 +1,11 @@
+import Ionicons from '@expo/vector-icons/build/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Sentry from '@sentry/react-native';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 import { QueryClient } from '@tanstack/react-query';
-import { PersistQueryClientProvider, persistQueryClient } from '@tanstack/react-query-persist-client';
-import { Stack } from 'expo-router';
-import { Image, ImageBackground } from 'react-native';
+import { persistQueryClient, PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
+import { router, Stack } from 'expo-router';
+import { Image, ImageBackground, TouchableOpacity } from 'react-native';
 
 Sentry.init({
 	dsn: 'https://d28491e1b8f26b6a29beefe0093c6d02@o4508151262347264.ingest.de.sentry.io/4508158889689168',
@@ -37,6 +38,14 @@ persistQueryClient({
 	},
 });
 
+const HeaderLeft = () => {
+	return (
+		<TouchableOpacity onPress={() => router.back()}>
+			<Ionicons name='arrow-back' size={24} color='#FABF47' />
+		</TouchableOpacity>
+	);
+};
+
 function StackLayout() {
 	return (
 		<Stack
@@ -52,6 +61,13 @@ function StackLayout() {
 				options={{
 					headerTitle: () => logoImage,
 					headerShown: false,
+				}}
+			/>
+			<Stack.Screen
+				name='(video)/[id]'
+				options={{
+					headerTitle: () => logoImage,
+					headerLeft: () => HeaderLeft(),
 				}}
 			/>
 		</Stack>
