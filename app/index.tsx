@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { useEffect } from 'react';
-import { ImageBackground, Text, Image, View } from 'react-native';
+import { Image, ImageBackground, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const imageBg = require('../assets/images/whitegrit.png');

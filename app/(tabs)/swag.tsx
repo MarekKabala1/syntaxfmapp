@@ -1,6 +1,6 @@
 import BgWrapper from '@/components/BgWrapper';
 import React from 'react';
-import { View, Text } from 'react-native';
+import { Text } from 'react-native';
 
 export default function swag() {
 	return (
