@@ -8,7 +8,7 @@ import { router, Stack } from 'expo-router';
 import { Image, ImageBackground, TouchableOpacity } from 'react-native';
 
 Sentry.init({
-	dsn: 'https://d28491e1b8f26b6a29beefe0093c6d02@o4508151262347264.ingest.de.sentry.io/4508158889689168',
+	dsn: 'https://3c936a9d2d47e3f9ccfbcb804ce68f93@o4508151262347264.ingest.de.sentry.io/4510463735693392',
 	// Adds more context data to events (IP address, cookies, user, etc.)
 	// For more information, visit: https://docs.sentry.io/platforms/react-native/data-management/data-collected/
 	sendDefaultPii: true,
