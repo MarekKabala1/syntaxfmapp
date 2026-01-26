@@ -1,9 +1,9 @@
-// hooks/useYouTube.ts
+
 import { SYNTAX_FM_CHANNEL_ID } from '@/const';
 import { useQuery } from '@tanstack/react-query';
 import { fetchYoutubeChannel, fetchYoutubePlaylistVideos } from '../api/youtube';
 
-// UI-friendly types
+
 export interface YouTubeChannel {
   playlistId: string;
   title: string;
