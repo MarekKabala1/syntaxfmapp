@@ -3,18 +3,22 @@ import { formatDuration } from '@/utils/formatTime';
 import { Ionicons } from '@expo/vector-icons';
 import { setAudioModeAsync, useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import ShowDisplay from './ShowDisplay';
 
 export interface AudioPlayerProps {
 	podcastUrl?: string;
 	imageUrl?: string;
 	title?: string;
 	currentTime?: number;
+	published?: string;
 }
 
 export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayerProps) {
 	const { data: lastPlayedEpisode, saveLastPlayed } = useLastPlayedEpisode();
 	const activeEpisode = useMemo(() => (podcastUrl ? { podcastUrl, title, imageUrl } : lastPlayedEpisode), [podcastUrl, title, imageUrl, lastPlayedEpisode]);
+
+	console.log(activeEpisode);
 
 	const player = useAudioPlayer(activeEpisode?.podcastUrl || '');
 	const status = useAudioPlayerStatus(player);
@@ -111,16 +115,7 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 
 	return (
 		<View style={styles.container}>
-			<View style={styles.headerContainer}>
-				<View style={styles.logoContainer}>
-					<Image source={require('../assets/images/SyntaxLogoWide.png')} style={styles.titleImage} resizeMode='contain' />
-					<View style={styles.titleContainer}>
-						<Text style={styles.title}>Player</Text>
-					</View>
-				</View>
-				{activeEpisode?.imageUrl ? <Image style={styles.image} source={{ uri: activeEpisode.imageUrl }} /> : null}
-			</View>
-			<Text style={styles.title}>{activeEpisode?.title || 'No episode selected'}</Text>
+			<ShowDisplay imageUrl={activeEpisode?.imageUrl} title={activeEpisode?.title} />
 			<View style={styles.progressBarContainer}>
 				<Text style={styles.progressBarTime}>{formatDuration(status.currentTime.toString())}</Text>
 				<View style={styles.progressBar}>
@@ -162,37 +157,6 @@ const styles = StyleSheet.create({
 		zIndex: 1,
 		position: 'relative',
 		marginBottom: 10,
-	},
-	headerContainer: {
-		display: 'flex',
-		flexDirection: 'row',
-		justifyContent: 'space-between',
-		alignItems: 'flex-start',
-		marginBottom: 10,
-	},
-	logoContainer: {
-		justifyContent: 'center',
-	},
-	titleImage: {
-		width: 120,
-		height: 40,
-	},
-	title: {
-		color: '#FABF47',
-		fontSize: 12,
-		fontWeight: 'bold',
-		width: '100%',
-		textAlign: 'center',
-		marginBottom: 8,
-	},
-	image: {
-		width: 90,
-		height: 90,
-	},
-	titleContainer: {
-		width: '100%',
-		justifyContent: 'center',
-		alignItems: 'center',
 	},
 	progressBarContainer: {
 		flexDirection: 'row',
