@@ -70,6 +70,13 @@ function StackLayout() {
 					headerLeft: () => HeaderLeft(),
 				}}
 			/>
+			<Stack.Screen
+				name='web'
+				options={{
+					headerTitle: () => logoImage,
+					headerLeft: () => HeaderLeft(),
+				}}
+			/>
 		</Stack>
 	);
 }
