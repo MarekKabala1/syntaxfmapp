@@ -20,8 +20,7 @@ const getShowType = (published: string): string | null => {
 		} else if (dayOfWeek === 1) {
 			return 'Hasty';
 		}
-	} catch {
-	}
+	} catch {}
 
 	return null;
 };
@@ -32,7 +31,7 @@ const formatDate = (published: string): string => {
 		const options: Intl.DateTimeFormatOptions = {
 			month: 'long',
 			day: 'numeric',
-			year: 'numeric'
+			year: 'numeric',
 		};
 		return date.toLocaleDateString('en-US', options);
 	} catch {
@@ -91,19 +90,12 @@ export default function PodcastFeed({ onEpisodeSelect }: PodcastFeedProps) {
 		const isExpanded = expandedId === data.id;
 
 		return (
-			<Pressable
-				style={styles.episode}
-				onPress={() => handleEpisodePress(data)}
-			>
-				{episodeNumber && (
-					<Text style={styles.episodeNumber}>{episodeNumber}</Text>
-				)}
+			<Pressable style={styles.episode} onPress={() => handleEpisodePress(data)}>
+				<Text style={styles.episodeNumber}>{episodeNumber}</Text>
 				<View style={styles.contentContainer}>
 					<View style={styles.episodeContent}>
 						<View style={styles.metaRow}>
-							{showType && (
-								<Text style={styles.showType}>{showType} ×</Text>
-							)}
+							{showType && <Text style={styles.showType}>{showType} ×</Text>}
 							<Text style={styles.date}>{publishedLabel}</Text>
 						</View>
 						<Text style={styles.title} numberOfLines={2}>
@@ -113,8 +105,7 @@ export default function PodcastFeed({ onEpisodeSelect }: PodcastFeedProps) {
 							onPress={(e) => {
 								(e as any)?.stopPropagation?.();
 								setExpandedId((prev) => (prev === data.id ? null : data.id));
-							}}
-						>
+							}}>
 							<Text style={styles.expandButtonText}>{isExpanded ? 'Hide' : 'Read more'}</Text>
 						</Pressable>
 						{isExpanded ? <Text style={styles.description}>{data.description}</Text> : null}
@@ -175,22 +166,22 @@ const styles = StyleSheet.create({
 		paddingVertical: 20,
 		position: 'relative',
 		borderWidth: 1,
-		borderColor:'rgba(241, 243, 244,0.5)',
+		borderColor: 'rgba(241, 243, 244,0.5)',
+		overflow: 'hidden',
 	},
 	episodeNumber: {
 		fontSize: 120,
 		fontWeight: 'bold',
 		color: '#FABF47',
 		position: 'absolute',
-		top: -20,
-		right: 0,
+		top: -25,
+		right: -20,
 		zIndex: 0,
 		lineHeight: 120,
 	},
 	contentContainer: {
 		flexDirection: 'row',
 		zIndex: 1,
-		position: 'relative',
 	},
 	playButton: {
 		marginRight: 16,
