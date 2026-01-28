@@ -1,11 +1,16 @@
 import BgWrapper from '@/components/BgWrapper';
+import SnackPackIssues from '@/components/SnackPackIssues';
+import { useSnackPack } from '@/hooks/useSnackPack';
 import React from 'react';
-import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { router } from 'expo-router';
+import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
-export default function newsletter() {
+export default function Newsletter() {
+	const { data, isLoading, error } = useSnackPack();
+
 	return (
 		<BgWrapper>
-			<View style={styles.heroContainer}>
+			<ScrollView contentContainerStyle={styles.heroContainer} showsVerticalScrollIndicator={false}>
 				<View style={styles.headerContainer}>
 					<View style={styles.line} />
 					<Text style={styles.headerText}>Syntax Snack Pack</Text>
@@ -39,7 +44,18 @@ export default function newsletter() {
 				</View>
 				<Text style={styles.text}>Wanna see how good our snackpack is?</Text>
 				<Text style={styles.text}>Looking for something mentioned in the past?</Text>
-			</View>
+				<View style={styles.issuesContainer}>
+					<SnackPackIssues
+						issues={data?.issues}
+						isLoading={isLoading}
+						error={error ?? null}
+						onIssuePress={(issue) => {
+							if (!issue.url) return;
+							router.push({ pathname: '/web' as any, params: { url: issue.url, title: issue.title } });
+						}}
+					/>
+				</View>
+			</ScrollView>
 		</BgWrapper>
 	);
 }
@@ -50,6 +66,11 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		width: '100%',
 		gap: 20,
+		paddingBottom: 32,
+	},
+	issuesContainer: {
+		width: '100%',
+		paddingHorizontal: 16,
 	},
 	text: {
 		color: '#fff',
