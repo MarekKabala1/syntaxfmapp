@@ -71,7 +71,6 @@ const styles = StyleSheet.create({
 	},
 	issuesContainer: {
 		width: '100%',
-		paddingHorizontal: 16,
 	},
 	text: {
 		color: '#fff',
