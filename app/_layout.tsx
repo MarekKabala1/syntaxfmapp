@@ -4,7 +4,7 @@ import * as Sentry from '@sentry/react-native';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 import { QueryClient } from '@tanstack/react-query';
 import { persistQueryClient, PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import { router, Stack } from 'expo-router';
+import { Href, router, Stack } from 'expo-router';
 import { Image, ImageBackground, TouchableOpacity } from 'react-native';
 
 Sentry.init({
@@ -38,9 +38,17 @@ persistQueryClient({
 	},
 });
 
-const HeaderLeft = () => {
+const HeaderLeft = ({ backRoute }: { backRoute: Href }) => {
+	const handleBack = () => {
+		if (router.canGoBack()) {
+			router.back();
+		} else {
+			router.replace(backRoute);
+		}
+	};
+
 	return (
-		<TouchableOpacity onPress={() => router.back()}>
+		<TouchableOpacity onPress={handleBack}>
 			<Ionicons name='arrow-back' size={24} color='#FABF47' />
 		</TouchableOpacity>
 	);
@@ -67,14 +75,14 @@ function StackLayout() {
 				name='(video)/[id]'
 				options={{
 					headerTitle: () => logoImage,
-					headerLeft: () => HeaderLeft(),
+					headerLeft: () => <HeaderLeft backRoute={'/video'} />,
 				}}
 			/>
 			<Stack.Screen
 				name='web'
 				options={{
 					headerTitle: () => logoImage,
-					headerLeft: () => HeaderLeft(),
+					headerLeft: () => <HeaderLeft backRoute={'/newsletter'} />,
 				}}
 			/>
 		</Stack>
