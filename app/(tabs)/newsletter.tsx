@@ -1,12 +1,12 @@
 import BgWrapper from '@/components/BgWrapper';
 import SnackPackIssues from '@/components/SnackPackIssues';
 import { useSnackPack } from '@/hooks/useSnackPack';
-import React from 'react';
 import { router } from 'expo-router';
+import React from 'react';
 import { Image, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 export default function Newsletter() {
-	const { data, isLoading, error } = useSnackPack();
+	const { data, isLoading, error, refetch } = useSnackPack();
 
 	return (
 		<BgWrapper>
@@ -49,6 +49,7 @@ export default function Newsletter() {
 						issues={data?.issues}
 						isLoading={isLoading}
 						error={error ?? null}
+						onRetry={() => refetch()}
 						onIssuePress={(issue) => {
 							if (!issue.url) return;
 							router.push({ pathname: '/web' as any, params: { url: issue.url, title: issue.title } });

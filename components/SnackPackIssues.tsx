@@ -7,9 +7,10 @@ type Props = {
   isLoading: boolean;
   error: Error | null;
   onIssuePress?: (issue: SnackPackIssue) => void;
+  onRetry?: () => void;
 };
 
-export default function SnackPackIssues({ issues, isLoading, error, onIssuePress }: Props) {
+export default function SnackPackIssues({ issues, isLoading, error, onIssuePress, onRetry }: Props) {
   const formatDate = (dateString: string): string => {
     if (!dateString) return '';
     try {
@@ -50,6 +51,11 @@ export default function SnackPackIssues({ issues, isLoading, error, onIssuePress
     return (
       <View style={styles.center}>
         <Text style={styles.error}>{error.message}</Text>
+        {onRetry ? (
+          <Pressable style={styles.retryButton} onPress={onRetry}>
+            <Text style={styles.retryButtonText}>Try again</Text>
+          </Pressable>
+        ) : null}
       </View>
     );
   }
@@ -142,5 +148,17 @@ const styles = StyleSheet.create({
     color: '#FF6B6B',
     textAlign: 'center',
     fontSize: 16,
+  },
+  retryButton: {
+    marginTop: 16,
+    backgroundColor: '#FABF47',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 5,
+  },
+  retryButtonText: {
+    color: '#000',
+    fontSize: 14,
+    fontWeight: 'bold',
   },
 });
