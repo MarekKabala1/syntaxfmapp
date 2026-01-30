@@ -18,8 +18,6 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 	const { data: lastPlayedEpisode, saveLastPlayed } = useLastPlayedEpisode();
 	const activeEpisode = useMemo(() => (podcastUrl ? { podcastUrl, title, imageUrl } : lastPlayedEpisode), [podcastUrl, title, imageUrl, lastPlayedEpisode]);
 
-	console.log(activeEpisode);
-
 	const player = useAudioPlayer(activeEpisode?.podcastUrl || '');
 	const status = useAudioPlayerStatus(player);
 	const [playbackRate, setPlaybackRate] = useState(player.playbackRate);

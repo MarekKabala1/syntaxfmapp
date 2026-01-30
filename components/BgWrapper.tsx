@@ -17,12 +17,11 @@ const styles = StyleSheet.create({
 		width: width,
 		height: height,
 		backgroundColor: '#000',
-		// paddingInline: 20,
 	},
 	bg: {
 		flex: 1,
 		width: '100%',
 		height: '100%',
-		paddingInline: 0,
+		paddingInline: 10,
 	},
 });
