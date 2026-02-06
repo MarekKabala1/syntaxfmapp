@@ -113,16 +113,22 @@ const styles = StyleSheet.create({
 		fontSize: 14,
 		fontWeight: '400',
 		color: '#F1F3F4',
+		fontFamily: 'JetBrainsMono',
+		fontStyle: 'italic',
+		letterSpacing: -1,
 	},
 	date: {
 		fontSize: 14,
 		fontWeight: '400',
 		color: '#F1F3F4',
+		fontFamily: 'JetBrainsMono',
+		fontStyle: 'italic',
+		letterSpacing: -1,
 	},
 	title: {
 		fontSize: 18,
 		fontWeight: 'bold',
-		fontStyle: 'italic',
+		fontFamily: 'JetBrainsMono',
 		color: '#FFFFFF',
 		marginBottom: 10,
 		lineHeight: 24,
@@ -130,6 +136,9 @@ const styles = StyleSheet.create({
 	openText: {
 		color: '#FABF47',
 		fontSize: 14,
+		fontFamily: 'JetBrainsMono',
+		fontStyle: 'italic',
+		letterSpacing: -1,
 	},
 	loadingText: {
 		color: '#FFFFFF',

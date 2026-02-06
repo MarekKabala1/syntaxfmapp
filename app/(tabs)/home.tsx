@@ -82,24 +82,24 @@ export default function Home() {
 				<View style={styles.treatContainer}>
 					<View style={[styles.treatWrapper, styles.center]}>
 						<TouchableOpacity onPress={() => {}}>
-							<View style={[styles.treatInfo, styles.center]}>
+							<View style={[styles.treatInfoContainer, styles.center]}>
 								<Text style={styles.treatLength}>15m</Text>
 								<Text style={styles.treatDay}>Monday</Text>
 							</View>
 							<View>
 								<Text style={styles.treat}>Hasty Treat</Text>
 							</View>
-							<Text style={{ color: '#fff', fontSize: 11, textAlign: 'center', marginBottom: 10 }}>Quick n&apos; Informative</Text>
+							<Text style={styles.treatInfo}>Quick n&apos; Informative</Text>
 						</TouchableOpacity>
 					</View>
 					<View style={[styles.treatWrapper, styles.center]}>
 						<TouchableOpacity onPress={() => {}}>
-							<View style={[styles.treatInfo, styles.center]}>
+							<View style={[styles.treatInfoContainer, styles.center]}>
 								<Text style={styles.treatLength}>60m</Text>
 								<Text style={styles.treatDay}>Wednesday</Text>
 							</View>
 							<Text style={styles.treat}>Tasty Treat</Text>
-							<Text style={{ color: '#fff', fontSize: 11, textAlign: 'center', marginBottom: 10 }}>Deep Dives</Text>
+							<Text style={styles.treatInfo}>Deep Dives</Text>
 						</TouchableOpacity>
 					</View>
 				</View>
@@ -119,6 +119,8 @@ const styles = StyleSheet.create({
 		lineHeight: 60,
 		fontSize: 40,
 		color: '#fff',
+		fontFamily: 'JetBrainsMono',
+		fontStyle: 'italic',
 		fontWeight: 'bold',
 	},
 	heroHostedByContainer: {
@@ -171,6 +173,7 @@ const styles = StyleSheet.create({
 	},
 	buttonPodcastProviderText: {
 		color: '#000',
+		fontFamily: 'JetBrainsMono',
 		fontSize: 10,
 		fontWeight: 'bold',
 	},
@@ -185,6 +188,7 @@ const styles = StyleSheet.create({
 	treatHeading: {
 		color: '#fff',
 		fontSize: 12,
+		fontFamily: 'JetBrainsMono',
 		width: '100%',
 		textAlign: 'center',
 		textTransform: 'uppercase',
@@ -199,7 +203,7 @@ const styles = StyleSheet.create({
 	treatWrapper: {
 		minWidth: 130,
 	},
-	treatInfo: {
+	treatInfoContainer: {
 		flexDirection: 'row',
 		gap: 8,
 	},
@@ -226,6 +230,7 @@ const styles = StyleSheet.create({
 	},
 	treat: {
 		color: '#000',
+		fontFamily: 'JetBrainsMono',
 		fontWeight: '900',
 		textTransform: 'uppercase',
 		padding: 6,
@@ -233,5 +238,13 @@ const styles = StyleSheet.create({
 		fontSize: 16,
 		backgroundColor: '#FABF47',
 		zIndex: 1,
+		textAlign: 'center',
+	},
+	treatInfo: {
+		color: '#fff',
+		fontSize: 11,
+		textAlign: 'center',
+		marginBottom: 10,
+		fontFamily: 'JetBrainsMono',
 	},
 });

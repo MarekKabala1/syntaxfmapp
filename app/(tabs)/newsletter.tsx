@@ -28,7 +28,7 @@ export default function Newsletter() {
 						resizeMode='contain'
 					/>
 				</View>
-				<Text style={styles.text}>Join our newsletter for 15% off all Syntax & Sentry swag</Text>
+				<Text style={[styles.text, styles.textItalic]}>Join our newsletter for 15% off all Syntax & Sentry swag</Text>
 				<View style={styles.formContainer}>
 					<TextInput style={styles.input} />
 					<Pressable style={styles.button} onPress={() => {}}>
@@ -36,7 +36,7 @@ export default function Newsletter() {
 					</Pressable>
 				</View>
 				<Text style={styles.text}>Hot takes, tips & tricks, new content, swag drops & more</Text>
-				<Text style={styles.text}>Dip at any time.</Text>
+				<Text style={[styles.text, styles.textSmall]}>Dip at any time.</Text>
 				<View style={styles.headerContainer}>
 					<View style={styles.line} />
 					<Text style={styles.headerText}>Past Issues</Text>
@@ -77,6 +77,15 @@ const styles = StyleSheet.create({
 		fontSize: 16,
 		textAlign: 'center',
 		fontWeight: 600,
+		letterSpacing: -1,
+		fontFamily: 'JetBrainsMono',
+	},
+	textItalic: {
+		fontStyle: 'italic',
+		letterSpacing: -1,
+	},
+	textSmall: {
+		fontSize: 12,
 	},
 	headerContainer: {
 		flexDirection: 'row',
@@ -86,7 +95,10 @@ const styles = StyleSheet.create({
 	headerText: {
 		color: '#fff',
 		fontSize: 32,
-		fontWeight: 'bold',
+		fontFamily: 'JetBrainsMono',
+		fontStyle: 'italic',
+		letterSpacing: -2,
+		fontWeight: '900',
 		marginHorizontal: 10,
 	},
 	line: {
@@ -101,14 +113,16 @@ const styles = StyleSheet.create({
 	},
 	input: {
 		flex: 1,
-		backgroundColor: '#fff',
+		borderWidth: 1,
+		borderColor: 'rgba(241, 243, 244,0.5)',
 		borderRadius: 5,
 	},
 	buttonText: {
 		color: '#000',
 		fontSize: 14,
-		fontWeight: 'bold',
+		fontWeight: '900',
 		textAlign: 'center',
+		fontFamily: 'JetBrainsMono',
 	},
 	button: {
 		backgroundColor: '#FABF47',

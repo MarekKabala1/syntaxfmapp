@@ -35,12 +35,17 @@ const styles = StyleSheet.create({
 	},
 	title: {
 		fontSize: 32,
-		fontWeight: 'bold',
+		fontFamily: 'JetBrainsMono',
+		fontStyle: 'italic',
+		letterSpacing: -2,
+		fontWeight: '900',
 		color: '#FFFFFF',
 		marginBottom: 20,
 	},
 	description: {
 		fontSize: 16,
+		fontFamily: 'JetBrainsMono',
+		fontWeight: '700',
 		color: '#CCCCCC',
 		lineHeight: 24,
 		marginBottom: 16,

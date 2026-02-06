@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
 		fontWeight: 'bold',
 		color: '#FABF47',
 		position: 'absolute',
-		top: -25,
+		top: -20,
 		right: -20,
 		zIndex: 0,
 		lineHeight: 120,
