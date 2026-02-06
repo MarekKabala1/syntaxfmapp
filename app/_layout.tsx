@@ -62,7 +62,9 @@ function StackLayout() {
 				headerTitle: () => logoImage,
 				headerTitleAlign: 'center',
 				headerTitleStyle: { color: '#000' },
-				headerBackground: () => <ImageBackground style={{ backgroundColor: '#000', minWidth: 600, height: '100%' }} source={imageBg} resizeMode='cover' />,
+				headerBackground: () => (
+					<ImageBackground style={{ backgroundColor: '#000', minWidth: 600, height: '100%', zIndex: -1 }} source={imageBg} resizeMode='cover' />
+				),
 			}}>
 			<Stack.Screen
 				name='index'
@@ -75,14 +77,14 @@ function StackLayout() {
 				name='(video)/[id]'
 				options={{
 					headerTitle: () => logoImage,
-					headerLeft: () => <HeaderLeft backRoute={'/video'} />,
+					headerLeft: () => <HeaderLeft backRoute={'/(tabs)/video'} />,
 				}}
 			/>
 			<Stack.Screen
 				name='web'
 				options={{
 					headerTitle: () => logoImage,
-					headerLeft: () => <HeaderLeft backRoute={'/newsletter'} />,
+					headerLeft: () => <HeaderLeft backRoute={'/(tabs)/newsletter'} />,
 				}}
 			/>
 		</Stack>
