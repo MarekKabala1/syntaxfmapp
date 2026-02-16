@@ -1,6 +1,8 @@
-import { useLastPlayedEpisode, usePodcastFeed } from '@/hooks/usePodcast';
+import { getEpisodeProgress, saveLastPlayed } from '@/api/storage';
+import { usePodcastFeed } from '@/hooks/usePodcast';
 import { PodcastEpisode, PodcastFeedProps } from '@/types/podcast';
-import React, { useState } from 'react';
+import { formatDuration } from '@/utils/formatTime';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 
 const extractEpisodeNumber = (title: string): string | null => {
@@ -11,109 +13,206 @@ const extractEpisodeNumber = (title: string): string | null => {
 const getShowType = (published: string): string | null => {
 	if (!published) return null;
 
-	try {
-		const date = new Date(published);
-		const dayOfWeek = date.getDay();
+	const date = new Date(published);
+	if (isNaN(date.getTime())) return null;
 
-		if (dayOfWeek === 3) {
-			return 'Tasty';
-		} else if (dayOfWeek === 1) {
-			return 'Hasty';
-		}
-	} catch {}
-
+	const dayOfWeek = date.getDay();
+	if (dayOfWeek === 3) return 'Tasty';
+	if (dayOfWeek === 1) return 'Hasty';
 	return null;
 };
 
 const formatDate = (published: string): string => {
-	try {
-		const date = new Date(published);
-		const options: Intl.DateTimeFormatOptions = {
-			month: 'long',
-			day: 'numeric',
-			year: 'numeric',
-		};
-		return date.toLocaleDateString('en-US', options);
-	} catch {
-		return new Date(published).toLocaleDateString();
-	}
+	const date = new Date(published);
+	if (isNaN(date.getTime())) return published;
+
+	return date.toLocaleDateString('en-US', {
+		month: 'long',
+		day: 'numeric',
+		year: 'numeric',
+	});
 };
 
 const formatPublishedLabel = (published: string): string => {
-	try {
-		const date = new Date(published);
-		const diffMs = Date.now() - date.getTime();
-		if (!Number.isFinite(diffMs) || diffMs < 0) return formatDate(published);
+	const date = new Date(published);
+	if (isNaN(date.getTime())) return published;
 
-		const minutes = Math.floor(diffMs / (1000 * 60));
-		const hours = Math.floor(diffMs / (1000 * 60 * 60));
-		const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+	const diffMs = Date.now() - date.getTime();
+	if (!Number.isFinite(diffMs) || diffMs < 0) return formatDate(published);
 
-		if (days >= 21) return formatDate(published);
-		if (days >= 7) return `${Math.max(1, Math.floor(days / 7))} weeks ago`;
-		if (days >= 1) return `${days} days ago`;
-		if (hours >= 1) return `${hours} hours ago`;
-		return `${Math.max(1, minutes)} minutes ago`;
-	} catch {
-		return formatDate(published);
-	}
+	const minutes = Math.floor(diffMs / (1000 * 60));
+	const hours = Math.floor(diffMs / (1000 * 60 * 60));
+	const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+	if (days >= 21) return formatDate(published);
+	if (days >= 7) return `${Math.max(1, Math.floor(days / 7))} weeks ago`;
+	if (days >= 1) return `${days} days ago`;
+	if (hours >= 1) return `${hours} hours ago`;
+	return `${Math.max(1, minutes)} minutes ago`;
 };
 
-export default function PodcastFeed({ onEpisodeSelect }: PodcastFeedProps) {
-	const { data, isLoading, error } = usePodcastFeed('https://feeds.megaphone.fm/FSI1483080183');
-	const { saveLastPlayed } = useLastPlayedEpisode();
-	const [expandedId, setExpandedId] = useState<string | null>(null);
-	const handleEpisodePress = (data: PodcastEpisode) => {
-		if (data) {
-			onEpisodeSelect({
-				podcastUrl: data.enclosures[0].url,
-				title: data.title,
-				imageUrl: data.itunes.image,
-			});
-			saveLastPlayed.mutate({
-				podcastUrl: data.enclosures[0].url,
-				title: data.title,
-				imageUrl: data.itunes.image,
-				currentTime: 0,
-			});
-		} else {
-			console.error('Failed to load podcast episodes', error);
-		}
-	};
+interface EpisodeItemProps {
+	episode: PodcastEpisode;
+	isExpanded: boolean;
+	isFinished: boolean;
+	duration: string | number;
+	status: 'finished' | 'in progress' | 'not started';
+	onPress: () => void;
+	onToggleExpand: () => void;
+}
 
-	const renderEpisodeItem = ({ data }: { data: PodcastEpisode }) => {
-		const episodeNumber = extractEpisodeNumber(data.title);
-		const showType = getShowType(data.published);
-		const publishedLabel = formatPublishedLabel(data.published);
+const EpisodeItem = memo(function EpisodeItem({ episode, isExpanded, isFinished, duration, status, onPress, onToggleExpand }: EpisodeItemProps) {
+	const episodeNumber = extractEpisodeNumber(episode.title);
+	const showType = getShowType(episode.published);
+	const publishedLabel = formatPublishedLabel(episode.published);
+	const durationOfEpisode = formatDuration(episode.itunes.duration);
+	const titleWithoutNumber = episode.title.replace(/^\d+:\s*/, '');
 
-		const titleWithoutNumber = data.title.replace(/^\d+:\s*/, '');
-		const isExpanded = expandedId === data.id;
-
-		return (
-			<Pressable style={styles.episode} onPress={() => handleEpisodePress(data)}>
-				<Text style={styles.episodeNumber}>{episodeNumber}</Text>
-				<View style={styles.contentContainer}>
-					<View style={styles.episodeContent}>
-						<View style={styles.metaRow}>
-							{showType && <Text style={styles.showType}>{showType} ×</Text>}
-							<Text style={styles.date}>{publishedLabel}</Text>
-						</View>
-						<Text style={styles.title} numberOfLines={2}>
-							{titleWithoutNumber}
-						</Text>
-						<Pressable
-							onPress={(e) => {
-								(e as any)?.stopPropagation?.();
-								setExpandedId((prev) => (prev === data.id ? null : data.id));
-							}}>
+	return (
+		<Pressable style={styles.episode} onPress={onPress}>
+			<Text style={styles.episodeNumber}>{episodeNumber}</Text>
+			<View style={styles.contentContainer}>
+				<View style={styles.episodeContent}>
+					<View style={styles.metaRow}>
+						{showType && <Text style={styles.showType}>{showType} ×</Text>}
+						<Text style={styles.date}>{publishedLabel}</Text>
+					</View>
+					<Text style={styles.date}>Episode Duration: {durationOfEpisode}</Text>
+					<Text style={styles.title} numberOfLines={3}>
+						{titleWithoutNumber}
+					</Text>
+					<View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }}>
+						<Pressable onPress={onToggleExpand} hitSlop={8}>
 							<Text style={styles.expandButtonText}>{isExpanded ? 'Hide' : 'Read more'}</Text>
 						</Pressable>
-						{isExpanded ? <Text style={styles.description}>{data.description}</Text> : null}
+						{isFinished ? (
+							<Text style={styles.finishedText}>Finished</Text>
+						) : (
+							<View style={{ alignItems: 'center', gap: 4 }}>
+								<Text style={[styles.finishedText, { color: '#FABF47' }]}>{duration} left</Text>
+								<Text style={[styles.finishedText, { color: '#FABF47' }]}>{status}</Text>
+							</View>
+						)}
+					</View>
+
+					<View style={styles.descriptionContainer}>
+						{isExpanded && (
+							<>
+								<Text style={styles.description}>{episode.description}</Text>
+								<Pressable onPress={onToggleExpand}>
+									<Text style={styles.expandButtonText}>{isExpanded ? 'Hide' : ''}</Text>
+								</Pressable>
+							</>
+						)}
 					</View>
 				</View>
-			</Pressable>
+			</View>
+		</Pressable>
+	);
+});
+
+export default function PodcastFeed({ onEpisodeSelect }: PodcastFeedProps) {
+	const { data: episodes, isLoading, error } = usePodcastFeed('https://feeds.megaphone.fm/FSI1483080183');
+	const [expandedId, setExpandedId] = useState<string | null>(null);
+
+	const finishedMap = useMemo(() => {
+		if (!episodes) return new Map<string, boolean>();
+		return new Map(episodes.map((episode) => [episode.enclosures[0]?.url, getEpisodeProgress(episode.enclosures[0]?.url)?.isFinished ?? false]));
+	}, [episodes]);
+
+	const durationToFinished = useMemo(() => {
+		if (!episodes) return new Map();
+		return new Map(
+			episodes?.map((episode) => {
+				const url = episode.enclosures[0]?.url;
+				const progress = getEpisodeProgress(url);
+
+				const parseDuration = (durationStr: string): number => {
+					if (!durationStr) return 0;
+					const num = Number(durationStr);
+					return isNaN(num) ? 0 : num;
+				};
+				if (!progress) {
+					const duration = parseDuration(episode.itunes.duration);
+					return [
+						url,
+						{
+							duration,
+							position: 0,
+							isFinished: false,
+							timeLeft: duration,
+							status: 'not started',
+						},
+					];
+				}
+
+				return [
+					url,
+					{
+						duration: progress?.duration ?? 0,
+						position: progress?.position ?? 0,
+						isFinished: progress?.isFinished ?? false,
+						timeLeft: progress?.duration ? progress.duration - progress.position : 0,
+						status: progress?.isFinished ? 'finished' : 'in progress',
+					},
+				];
+			}),
 		);
-	};
+	}, [episodes]);
+
+	const handleEpisodePress = useCallback(
+		(episode: PodcastEpisode) => {
+			const podcastUrl = episode.enclosures[0]?.url;
+			if (!podcastUrl) {
+				console.error('Episode missing podcast URL');
+				return;
+			}
+
+			onEpisodeSelect({
+				podcastUrl,
+				title: episode.title,
+				imageUrl: episode.itunes.image,
+				channelTitle: episode.channel?.title || '',
+			});
+			saveLastPlayed({
+				podcastUrl,
+				title: episode.title,
+				imageUrl: episode.itunes.image,
+				currentTime: 0,
+			});
+		},
+		[onEpisodeSelect],
+	);
+
+	const handleToggleExpand = useCallback((episodeId: string) => {
+		setExpandedId((prev) => (prev === episodeId ? null : episodeId));
+	}, []);
+
+	const renderEpisodeItem = useCallback(
+		({ item }: { item: PodcastEpisode }) => (
+			<EpisodeItem
+				episode={item}
+				isExpanded={expandedId === item.id}
+				isFinished={finishedMap.get(item.enclosures[0]?.url) ?? false}
+				duration={formatDuration(durationToFinished.get(item.enclosures[0]?.url)?.timeLeft)}
+				onPress={() => handleEpisodePress(item)}
+				onToggleExpand={() => handleToggleExpand(item.id)}
+				status={durationToFinished.get(item.enclosures[0]?.url)?.status ?? 'not started'}
+			/>
+		),
+		[expandedId, finishedMap, durationToFinished, handleEpisodePress, handleToggleExpand],
+	);
+
+	const keyExtractor = useCallback((item: PodcastEpisode) => item.id, []);
+
+	const ListEmptyComponent = useMemo(
+		() => (
+			<View style={styles.center}>
+				<Text style={styles.loadingText}>No episodes found</Text>
+			</View>
+		),
+		[],
+	);
 
 	if (isLoading) {
 		return (
@@ -134,16 +233,17 @@ export default function PodcastFeed({ onEpisodeSelect }: PodcastFeedProps) {
 
 	return (
 		<FlatList
-			data={data}
-			keyExtractor={(data: PodcastEpisode) => data.id}
-			renderItem={({ item }) => renderEpisodeItem({ data: item })}
+			data={episodes}
+			keyExtractor={keyExtractor}
+			renderItem={renderEpisodeItem}
+			extraData={expandedId}
 			showsVerticalScrollIndicator={false}
-			ListEmptyComponent={
-				<View style={styles.center}>
-					<Text style={styles.loadingText}>No episodes found</Text>
-				</View>
-			}
+			ListEmptyComponent={ListEmptyComponent}
 			contentContainerStyle={styles.listContent}
+			initialNumToRender={10}
+			maxToRenderPerBatch={10}
+			windowSize={5}
+			removeClippedSubviews={true}
 		/>
 	);
 }
@@ -191,7 +291,6 @@ const styles = StyleSheet.create({
 	episodeContent: {
 		flex: 1,
 		paddingTop: 6,
-		paddingRight: 72,
 	},
 	metaRow: {
 		flexDirection: 'row',
@@ -217,6 +316,9 @@ const styles = StyleSheet.create({
 		marginTop: 8,
 		marginBottom: 12,
 		lineHeight: 32,
+		textShadowColor: '#000',
+		textShadowOffset: { width: 2, height: 2 },
+		textShadowRadius: 1,
 	},
 	description: {
 		fontSize: 16,
@@ -227,7 +329,20 @@ const styles = StyleSheet.create({
 	expandButtonText: {
 		color: '#FABF47',
 		fontSize: 14,
-		marginBottom: 8,
+		fontWeight: 'bold',
+		fontFamily: 'JetBrainsMono',
+		fontStyle: 'italic',
+	},
+	descriptionContainer: {
+		width: '100%',
+		marginTop: 8,
+	},
+	finishedText: {
+		color: '#00FF00',
+		fontSize: 14,
+		fontWeight: 'bold',
+		fontFamily: 'JetBrainsMono',
+		fontStyle: 'italic',
 	},
 	loadingText: {
 		color: '#FFFFFF',

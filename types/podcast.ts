@@ -1,4 +1,7 @@
 export interface PodcastEpisode {
+  channel?: {
+    title: string;
+  };
   id: string;
   title: string;
   description: string;
@@ -11,5 +14,5 @@ export interface PodcastEpisode {
 }
 
 export interface PodcastFeedProps {
-  onEpisodeSelect: ({ podcastUrl, title, imageUrl }: { podcastUrl: string; title: string; imageUrl: string }) => void;
+  onEpisodeSelect: ({ podcastUrl, title, imageUrl, channelTitle }: { podcastUrl: string; title: string; imageUrl: string; channelTitle: string }) => void;
 }

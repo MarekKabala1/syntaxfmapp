@@ -1,12 +1,14 @@
+import { getEpisodeProgress, markEpisodeFinished, saveEpisodeProgress } from '@/api/storage';
 import { useLastPlayedEpisode } from '@/hooks/usePodcast';
 import { formatDuration } from '@/utils/formatTime';
 import { Ionicons } from '@expo/vector-icons';
 import { setAudioModeAsync, useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import ShowDisplay from './ShowDisplay';
 
 export interface AudioPlayerProps {
+	channelTitle?: string;
 	podcastUrl?: string;
 	imageUrl?: string;
 	title?: string;
@@ -14,16 +16,36 @@ export interface AudioPlayerProps {
 	published?: string;
 }
 
-export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayerProps) {
+const SAVE_INTERVAL_MS = 5000;
+const FINISH_THRESHOLD = 0.95;
+
+export default function AudioPlayer({ podcastUrl, imageUrl, title, channelTitle }: AudioPlayerProps) {
 	const { data: lastPlayedEpisode, saveLastPlayed } = useLastPlayedEpisode();
-	const activeEpisode = useMemo(() => (podcastUrl ? { podcastUrl, title, imageUrl } : lastPlayedEpisode), [podcastUrl, title, imageUrl, lastPlayedEpisode]);
+	const activeEpisode = useMemo(
+		() => (podcastUrl ? { podcastUrl, title, imageUrl, channelTitle } : lastPlayedEpisode),
+		[podcastUrl, title, imageUrl, lastPlayedEpisode, channelTitle],
+	);
 
 	const player = useAudioPlayer(activeEpisode?.podcastUrl || '');
 	const status = useAudioPlayerStatus(player);
 	const [playbackRate, setPlaybackRate] = useState(player.playbackRate);
+
+	const saveIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+	const statusRef = useRef(status);
+	const activeEpisodeRef = useRef(activeEpisode);
+	const lastLoadedUrlRef = useRef<string | null>(null);
+
 	player.shouldCorrectPitch = true;
 
-	const progressBarrWidth = useMemo(() => {
+	useEffect(() => {
+		statusRef.current = status;
+	}, [status]);
+
+	useEffect(() => {
+		activeEpisodeRef.current = activeEpisode;
+	}, [activeEpisode]);
+
+	const progressBarWidth = useMemo(() => {
 		return status.duration > 0 ? (status.currentTime / status.duration) * 100 : 0;
 	}, [status.currentTime, status.duration]);
 
@@ -43,17 +65,71 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 	}, []);
 
 	useEffect(() => {
-		if (activeEpisode?.podcastUrl) {
+		if (!activeEpisode?.podcastUrl) return;
+
+		if (lastLoadedUrlRef.current !== activeEpisode.podcastUrl) {
 			player.replace(activeEpisode.podcastUrl);
-			player.seekTo(activeEpisode.currentTime || 0);
+			lastLoadedUrlRef.current = activeEpisode.podcastUrl;
+
+			const saved = getEpisodeProgress(activeEpisode.podcastUrl);
+			if (saved && !saved.isFinished && saved.position > 0) {
+				const checkLoaded = setInterval(() => {
+					if (status.isLoaded) {
+						clearInterval(checkLoaded);
+						player.seekTo(saved.position);
+					}
+				}, 100);
+
+				setTimeout(() => clearInterval(checkLoaded), 5000);
+			}
 		}
-	}, [activeEpisode?.podcastUrl, activeEpisode?.currentTime, player]);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [activeEpisode?.podcastUrl]);
+
+	useEffect(() => {
+		if (!status.playing || !activeEpisode?.podcastUrl) {
+			if (saveIntervalRef.current) {
+				clearInterval(saveIntervalRef.current);
+				saveIntervalRef.current = null;
+			}
+			return;
+		}
+
+		saveIntervalRef.current = setInterval(() => {
+			const s = statusRef.current;
+			const ep = activeEpisodeRef.current;
+
+			if (!ep?.podcastUrl || s.duration <= 0) return;
+
+			saveEpisodeProgress({
+				episodeId: ep.podcastUrl,
+				position: s.currentTime,
+				duration: s.duration,
+				isFinished: s.currentTime / s.duration >= FINISH_THRESHOLD,
+				lastPlayed: Date.now(),
+			});
+		}, SAVE_INTERVAL_MS);
+
+		return () => {
+			if (saveIntervalRef.current) {
+				clearInterval(saveIntervalRef.current);
+				saveIntervalRef.current = null;
+			}
+		};
+	}, [status.playing, activeEpisode?.podcastUrl]);
+
+	useEffect(() => {
+		if (status.didJustFinish && activeEpisodeRef.current?.podcastUrl) {
+			markEpisodeFinished(activeEpisodeRef.current.podcastUrl);
+		}
+	}, [status.didJustFinish]);
 
 	const handlePlayPause = useCallback(() => {
 		if (status.playing) {
 			player.pause();
 			if (activeEpisode?.podcastUrl && status.duration && status.currentTime > 0) {
-				saveLastPlayed.mutate({
+				saveLastPlayed({
+					channelTitle: activeEpisode.channelTitle,
 					podcastUrl: activeEpisode.podcastUrl,
 					title: activeEpisode.title,
 					imageUrl: activeEpisode.imageUrl,
@@ -70,7 +146,7 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 		const goTo = Math.max(0, Math.min(currentTime + 15, status.duration || 0));
 		player.seekTo(goTo);
 		if (activeEpisode?.podcastUrl && status.duration && goTo > 0) {
-			saveLastPlayed.mutate({
+			saveLastPlayed({
 				podcastUrl: activeEpisode.podcastUrl,
 				title: activeEpisode.title,
 				imageUrl: activeEpisode.imageUrl,
@@ -84,7 +160,7 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 		const goTo = Math.max(0, currentTime - 15);
 		player.seekTo(goTo);
 		if (activeEpisode?.podcastUrl && status.duration && goTo > 0) {
-			saveLastPlayed.mutate({
+			saveLastPlayed({
 				podcastUrl: activeEpisode.podcastUrl,
 				title: activeEpisode.title,
 				imageUrl: activeEpisode.imageUrl,
@@ -92,6 +168,7 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 			});
 		}
 	}, [player, status.duration, activeEpisode, saveLastPlayed]);
+
 	const PlaybackRate = useMemo(() => {
 		const rates = [1.0, 1.2, 1.5, 1.8, 2.0];
 
@@ -99,7 +176,6 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 			const currentIndex = rates.findIndex((rate) => Math.abs(rate - playbackRate) < 0.01);
 			const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % rates.length;
 			const nextRate = rates[nextIndex];
-
 			setPlaybackRate(nextRate);
 			player.setPlaybackRate(nextRate, 'high');
 		};
@@ -117,7 +193,7 @@ export default function AudioPlayer({ podcastUrl, imageUrl, title }: AudioPlayer
 			<View style={styles.progressBarContainer}>
 				<Text style={styles.progressBarTime}>{formatDuration(status.currentTime.toString())}</Text>
 				<View style={styles.progressBar}>
-					<View style={[styles.progressBarFill, { width: `${progressBarrWidth}%` }]} />
+					<View style={[styles.progressBarFill, { width: `${progressBarWidth}%` }]} />
 				</View>
 				<Text style={styles.progressBarTime}>{formatDuration(status.duration.toString())}</Text>
 			</View>
