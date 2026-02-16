@@ -1,8 +1,27 @@
+import { storage } from '@/api/storage';
 import BgWrapper from '@/components/BgWrapper';
 import SvgComponent from '@/components/SvgSentry';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function Home() {
+	function DebugButton() {
+		const showStorage = () => {
+			const allKeys = storage.getAllKeys();
+			const data = allKeys
+				.map((key) => {
+					const value = storage.getString(key);
+					return `${key}: ${value}`;
+				})
+				.join('\n\n');
+
+			Alert.alert('MMKV Storage', data);
+		};
+		return (
+			<Pressable onPress={showStorage} style={{ backgroundColor: 'red', padding: 10, borderRadius: 5 }}>
+				<Text style={{ color: '#fff' }}>Debug Storage</Text>
+			</Pressable>
+		);
+	}
 	return (
 		<BgWrapper>
 			<View style={styles.center}>
@@ -105,6 +124,7 @@ export default function Home() {
 				</View>
 			</View>
 			{/* </View> */}
+			<DebugButton />
 		</BgWrapper>
 	);
 }
